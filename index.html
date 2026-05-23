@@ -258,25 +258,25 @@ input:checked+.rslider:before{transform:translateX(18px);}
 // ── PROGRAM DATA ─────────────────────────────────────────────────────────────
 const PHASES = [
   { weeks:[1,2],  label:"Weeks 1–2 · Technical onboarding", color:"#0F6E56", rpe:"6–7",
-    desc:"Learn the movement patterns. Every exercise is new or modified. RPE 6–7 — you should finish each set feeling like you had 3–4 reps left.",
-    tags:["3 sets","15–20 reps","RPE 6–7","Light load"],
-    newMoves:["Zercher squat (learn pattern with empty bar)","Barbell sumo deadlift (technique focus)","Back extension Stage 1 (2 min isometric hold)","Spanish squat (learn the position)"] },
+    desc:"Learn movement patterns at light load. RPE 6–7 — 3–4 reps left in the tank every set. Cat-cow warmup before every session. Zone 2: Thursday 40 min walk. Sunday 30 min walk.",
+    tags:["3 sets","15–20 reps","RPE 6–7","Light load","Zone 2 Thu + Sun"],
+    newMoves:["Zercher squat — empty bar pattern only","Barbell sumo deadlift — technique focus","Back extension Stage 1 (2 min isometric hold)","Spanish squat — learn position","Dead hangs Mon + Fri (3×20s)","Calf raises both lower days (3×15–20)","Shrugs Mon + Fri (2×15)"] },
   { weeks:[3,6],  label:"Weeks 3–6 · Hypertrophy block A", color:"#185FA5", rpe:"7–8",
-    desc:"Progressive overload begins. Add weight when you hit the top of the rep range on all sets with good form. Back squat introduced lightly at Week 5.",
-    tags:["3–4 sets","8–12 reps","RPE 7–8","Progressive overload"],
-    newMoves:["Barbell RDL replaces DB RDL (Week 5)","Back extension Stage 2 (single-leg holds, Week 3)","Back squat introduced light (Week 5, RPE 6)"] },
+    desc:"Progressive overload begins. Top set (4–6 reps, RPE 8) added to primary compound each day before working sets. RDL returns Week 3. Zone 2: Thursday 40 min + Sunday 30–40 min.",
+    tags:["3–4 sets","8–12 reps","RPE 7–8","Top sets","Progressive overload"],
+    newMoves:["Top set added to Zercher, trap bar, hip thrust, split squat","RDL returns Week 3 (DB)","Barbell RDL replaces DB RDL (Week 5)","Back extension Stage 2 (single-leg holds, Week 3)","Back squat introduced Week 7 — not Week 5 (pushed back for safety)"] },
   { weeks:[7,10], label:"Weeks 7–10 · Hypertrophy block B", color:"#854F0B", rpe:"8–9",
-    desc:"Intensity climbs. Supersets introduced. Conventional deadlift reintroduced from the floor. Back squat becomes a primary lift.",
-    tags:["4 sets","8–12 reps","RPE 8–9","Supersets"],
-    newMoves:["Conventional deadlift from floor (Week 7, replaces trap bar Wed)","Back squat as primary lift (replaces Spanish squat Sat)","Back extension Stage 3 (full range reps, Week 7)","Jefferson curl added to mobility (Week 8)"] },
+    desc:"Intensity climbs. Supersets introduced. Conventional deadlift replaces trap bar. Back squat is now a primary lift. VO2 max intervals replace Thursday walk from Week 7.",
+    tags:["4 sets","8–12 reps","RPE 8–9","Supersets","VO2 max Thu"],
+    newMoves:["Conventional deadlift from floor (replaces trap bar, Wed)","Back squat as primary lift (replaces Spanish squat, Sat)","Back extension Stage 3 — full range reps","VO2 max intervals Thursday: 4 min hard / 4 min easy × 4 rounds","Jefferson curl added to evening mobility (Week 8)"] },
   { weeks:[11,11],label:"Week 11 · Deload", color:"#534AB7", rpe:"5",
-    desc:"50% volume, same weights. Mobility doubles. Tendons and joints catch up to muscles. Non-negotiable.",
-    tags:["2 sets","Same weight","RPE 5","Active recovery"],
+    desc:"50% volume, same weights, RPE 5. Full morning and evening mobility every day. Zone 2 only — no VO2 max this week. Tendons and joints catch up to muscles.",
+    tags:["2 sets","Same weight","RPE 5","Full mobility","Zone 2 only"],
     newMoves:[] },
   { weeks:[12,12],label:"Week 12 · Test & reset", color:"#A32D2D", rpe:"varies",
-    desc:"Repeat Week 1 conditions to compare. Set new baselines. Begin Cycle 2 with back squat and conventional deadlift as established primary lifts.",
+    desc:"Repeat Week 1 conditions to compare. Test your top sets on main lifts. Log new maxes. Plan Cycle 2 — conventional deadlift and back squat become established primary lifts.",
     tags:["Reassess","New maxes","Cycle 2 planning"],
-    newMoves:["Back extension Stage 4–5 with load (Cycle 2)","Jefferson curl as regular mobility movement"] },
+    newMoves:["Back extension Stage 4–5 with load in Cycle 2","True sprint intervals introduced in Cycle 2 (hamstrings prepared by now)","Jefferson curl becomes regular mobility movement"] },
 ];
 
 function getPhase(week) {
@@ -284,40 +284,53 @@ function getPhase(week) {
 }
 
 function getExercisesForWeek(dayIdx, week) {
-  // Returns the exercise list modified for the current week's phase
   const base = JSON.parse(JSON.stringify(DAYS[dayIdx].exercises));
   if(dayIdx === 2) { // Wednesday Lower A
-    // Week 7+: replace trap bar with conventional deadlift
+    const rdlIdx = base.findIndex(e => e.name === "Romanian deadlift (DB)");
+    if(week <= 2 && rdlIdx !== -1) {
+      base[rdlIdx] = { name:"Nordic curl negative (or lying hamstring curl)", sets:"3×6–8", rest:90, rpe:"6–7", phase:"Wks 1–2",
+        cues:["Anchor feet under rack or have a partner hold","Lower yourself as slowly as possible — 4–6s down","Catch yourself at the bottom, push back up with hands","Goal is controlling the negative — not the concentric","Week 3+: replaced by RDL for greater hamstring load"] };
+    } else if(week >= 5 && rdlIdx !== -1) {
+      base[rdlIdx] = { ...base[rdlIdx], name:"Romanian deadlift (barbell)", phase:"Week 5+",
+        cues:["Bar at hip crease, overhand or mixed grip","Hinge back, bar slides down thighs — keep it close","Lower until strong hamstring stretch, usually mid-shin","Drive hips forward to return, squeeze glutes at top","Heavier progressive overload than DBs — use it"] };
+    }
     const tdIdx = base.findIndex(e => e.name === "Trap bar deadlift");
     if(week >= 7 && tdIdx !== -1) {
       base[tdIdx] = { ...base[tdIdx], name:"Conventional deadlift", phase:"Week 7+",
-        cues:["Conventional stance — hip width, toes slightly out","Bar over mid-foot, hinge to grip — back flat, chest up","Drive through floor, bar stays close to shins throughout","Hips and shoulders rise at same rate — don't shoot hips up early","This is a milestone — you've earned it. Keep RPE 7–8 first 2 weeks."] };
+        sets:"1×4–6 top set, then 3×6–8",
+        cues:["TOP SET FIRST: work up to a heavy 4–6 reps at RPE 8 — this is your strength work","Then drop 15–20% and do 3 working sets of 6–8 for hypertrophy","Conventional stance — hip width, toes slightly out","Bar over mid-foot, hinge to grip — back flat, chest up","Bar stays close to shins throughout the pull","Weeks 7–8: keep RPE 7 on top set while learning the pattern"] };
     }
-    // Week 5+: barbell RDL replaces DB RDL
-    const rdlIdx = base.findIndex(e => e.name === "Romanian deadlift (DB)");
-    if(week >= 5 && rdlIdx !== -1) {
-      base[rdlIdx] = { ...base[rdlIdx], name:"Romanian deadlift (barbell)", phase:"Week 5+",
-        cues:["Bar at hip crease, overhand or mixed grip","Hinge back, bar slides down thighs — keep it close","Lower until strong hamstring stretch, usually mid-shin","Drive hips forward to return, squeeze glutes at top","Barbell allows heavier progressive overload than DBs"] };
+    const zIdx = base.findIndex(e => e.name === "Zercher squat");
+    if(week >= 3 && zIdx !== -1) {
+      base[zIdx] = { ...base[zIdx], sets:"1×4–6 top set, then 3×8–10",
+        cues:[...base[zIdx].cues,"From Week 3: one heavy top set of 4–6 reps at RPE 8 first, then drop weight for working sets","This top set is your strength stimulus — treat it seriously"] };
     }
   }
   if(dayIdx === 4) { // Saturday Lower B
-    // Week 5+: back squat introduced
     const sqIdx = base.findIndex(e => e.name === "Spanish squat");
-    if(week >= 5 && sqIdx !== -1) {
-      base[sqIdx] = { ...base[sqIdx], name:"Back squat", phase:"Week 5+",
-        sets: week >= 7 ? "4×6–8" : "3×10–12",
-        cues:["Bar on upper traps (high bar) or rear delts (low bar) — try both","Brace hard before unracking — big breath, tight core","Sit between your heels, depth to parallel or below","Drive knees out, chest stays tall throughout","Week 5–6: treat as a new movement, RPE 6–7 only","Week 7+: this becomes your primary strength lift"] };
+    if(week >= 7 && sqIdx !== -1) {
+      base[sqIdx] = { ...base[sqIdx], name:"Back squat", phase:"Week 7+",
+        sets: week >= 9 ? "1×4–6 top set, then 3×6–8" : "3×8–10",
+        cues:["Bar on upper traps (high bar) or rear delts (low bar) — experiment with both","Brace hard before unracking — big breath into belly, tight core","Sit between your heels, depth to parallel or below","Drive knees out, chest stays tall throughout","Weeks 7–8: learning phase — RPE 7 max, no heroics","Week 9+: add a top set of 4–6 reps at RPE 8 before working sets"] };
+    }
+    const bssIdx = base.findIndex(e => e.name === "Bulgarian split squat (DB)");
+    if(week >= 3 && bssIdx !== -1) {
+      base[bssIdx] = { ...base[bssIdx],
+        sets:"1×6–8 top set, then 3×10 each",
+        cues:[...base[bssIdx].cues,"From Week 3: one heavier top set of 6–8 per leg before dropping to working weight"] };
     }
   }
   return base;
 }
 
 const DAYS = [
-  { name:"Monday — Upper A", emoji:"💪", bg:"#E6F1FB", sub:"Pull focus + arms", exercises:[
+  { name:"Monday — Upper A", emoji:"💪", bg:"#E6F1FB", sub:"Pull focus + arms + traps", exercises:[
     {name:"Chest-supported DB row",sets:"4×10–12",rest:90,rpe:"7–8",cues:["Bench at 30–45° incline, lie face-down","Neutral grip — palms facing each other, DBs vertical","Elbows at 45–60° from torso — not wide, not tucked","Full dead-hang stretch at the bottom of every rep","Cue: drive elbows into your back pockets","Squeeze shoulder blades fully at the top"]},
     {name:"Cable lat pulldown (wide)",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Overhand grip, slightly wider than shoulder-width","Full shoulder blade rise at the top — don't cut short","Lean back 10–15°, drive elbows to back pockets","Bar to upper chest, squeeze lats 1s at bottom"]},
     {name:"Cable face pull",sets:"3×15",rest:60,rpe:"6–7",cues:["Pulley at forehead height, rope attachment","Drive elbows back and wide — flared, not tucked","Pull rope toward forehead, split rope at the end","External rotate fully — knuckles pointing to ceiling"]},
     {name:"Neutral-grip cable row",sets:"3×12",rest:90,rpe:"7–8",cues:["Neutral grip, chest tall throughout","Row to sternum, elbows at 45°","Back pockets cue applies here too","Full shoulder blade squeeze at top"]},
+    {name:"DB shrug",sets:"3×15",rest:60,rpe:"6–7",cues:["Heavy DBs at sides, arms straight","Shrug straight up — not forward, not rolling","Hold the top position 2s, squeeze upper traps hard","Slow controlled descent — don't just drop it","Direct upper trap work corrects forward head posture from desk sitting"]},
+    {name:"Dead hang",sets:"3×20–30s",rest:60,rpe:"6",cues:["Hang from pull-up bar with full grip, arms straight","Let shoulders fully decompress — feel the spine lengthen","Breathe slowly and relax into it — don't tense","Build toward 60s holds over 12 weeks","Attia: dead hangs are one of the highest ROI longevity investments — grip strength + spinal decompression"]},
     {name:"Incline DB curl",sets:"4×12–15",rest:60,rpe:"7–8",cues:["Bench at 45–60°, upper arm hangs behind torso","Full dead-hang stretch at bottom — that's the point","Supinate wrist as you curl, hard squeeze at top","Do NOT swing — if you are, the weight is too heavy"]},
     {name:"Spider curl",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Face-down on incline bench, upper arms perpendicular to floor","Curl toward face — short head peak contraction","No momentum possible — go lighter than you think"]},
   ]},
@@ -336,55 +349,71 @@ const DAYS = [
     {name:"Trap bar deadlift",sets:"3×8–10",rest:120,rpe:"7–8",cues:["Stand centered, feet hip-width, toes slightly out","High handles first until form is solid","Hinge from hips first then bend knees — not a squat","Drive through floor, back flat throughout","Week 7+: this is replaced by conventional deadlift from floor"]},
     {name:"Romanian deadlift (DB)",sets:"3×10–12",rest:90,rpe:"7–8",cues:["DBs in front of thighs, keep them close to legs","Soft knee — fixed angle throughout","Push hips back until strong hamstring stretch","Drive hips forward, squeeze glutes at top","Week 5+: barbell replaces DBs for greater overload"]},
     {name:"Back extension (Backstrom)",sets:"Per stage",rest:90,rpe:"varies",cues:["Stage 1 (Wks 1–2): hold horizontal 2 min — zero movement","Stage 2 (Wks 3–6): one leg unhooked, hold 60s each side","Stage 3 (Wk 7+): full range reps, 3s down 2s up, build to 30","Stage 3: slight forward dip at bottom is intentional","Drop back one stage immediately if pain increases"]},
-    {name:"Single-leg glute bridge",sets:"2×15 each",rest:60,rpe:"6–7",cues:["One knee bent working leg, other leg extended","Drive through heel only, hips to ceiling","Hold 3s squeezing working glute, hips must stay level"]},
+    {name:"Standing calf raise",sets:"3×15–20",rest:45,rpe:"6–7",cues:["Both feet on floor or edge of step for full range","Rise onto toes as high as possible — full plantar flexion","3s slow negative — eccentric is where growth happens","Pause at full stretch at the bottom before next rep","Functional value: calf strength reduces ankle injury risk and improves walking economy long-term"]},
   ]},
-  { name:"Friday — Upper B", emoji:"⚡", bg:"#EEEDFE", sub:"Pull + chest + arms", exercises:[
+  { name:"Friday — Upper B", emoji:"⚡", bg:"#EEEDFE", sub:"Pull + chest + arms + traps", exercises:[
     {name:"Neutral-grip pull-up / lat pulldown",sets:"4×8–10",rest:90,rpe:"7–8",cues:["Full dead hang at bottom — shoulder blades rise fully","Drive elbows down and toward back pockets","Neutral grip — easiest on shoulder joint"]},
     {name:"Single-arm DB row",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Same-side knee and hand on bench, back flat","Drive elbow to ceiling — the DB is just a handle","Small natural torso rotation at top is fine"]},
     {name:"Flat DB press",sets:"3×10–12",rest:90,rpe:"7–8",cues:["DBs allow free wrist rotation — removes impingement","Elbows at 70° from torso","DBs travel slightly lower than bar — use that range"]},
     {name:"Cable fly (mid pulley)",sets:"3×12–15",rest:75,rpe:"7–8",cues:["Mid pulley — chest height with arms out","Sweep inward, slightly supinate wrists at finish","1s pause with hands together"]},
+    {name:"DB shrug",sets:"3×15",rest:60,rpe:"6–7",cues:["Heavy DBs at sides, shrug straight up — not rolling","Hold top 2s, squeeze upper traps hard","Slow controlled descent"]},
+    {name:"Dead hang",sets:"3×20–30s",rest:60,rpe:"6",cues:["Full hang, arms straight, shoulders fully decompressed","Breathe slowly and relax — don't actively pull","Build toward 60s holds over 12 weeks","Spinal decompression + grip strength — high longevity value"]},
     {name:"Cable curl (straight bar)",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Shoulder-width underhand, elbows fixed at sides","1s squeeze at peak contraction"]},
     {name:"Cross-body cable curl",sets:"3×12 each",rest:60,rpe:"7–8",cues:["Single arm cable at low pulley, stand sideways","Curl across body toward opposite shoulder","Cross-body targets long head for outer sweep","Supinate palm upward at top"]},
     {name:"Overhead cable tricep extension",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Face away from cable, elbows at ears","Let rope pull hands fully behind head — stretch is the point","Full lockout, keep elbows from flaring"]},
     {name:"Reverse cable fly",sets:"3×15",rest:60,rpe:"6–7",cues:["Cable crossover, cross cables, grab opposite handles","Fly backward — squeeze rear delts at end range","Counters desk posture — pulls shoulders back"]},
   ]},
-  { name:"Saturday — Lower B", emoji:"🏋️", bg:"#FAECE7", sub:"Quad & core", exercises:[
+  { name:"Saturday — Lower B", emoji:"🏋️", bg:"#FAECE7", sub:"Quad, core & glute isolation", exercises:[
     {name:"Bulgarian split squat (DB)",sets:"4×10 each",rest:90,rpe:"7–8",cues:["Rear foot elevated, front foot far enough for vertical shin","Lower straight down — not forward","Drive through front heel — quad and glute do the work","First few sessions feel unstable — lighter weight until solid"]},
-    {name:"Spanish squat",sets:"3×12–15",rest:90,rpe:"7–8",cues:["Band or TRX anchored at squat rack at knee height","Lean back into band/TRX, feet flat, squat straight down","Knees track over toes — shins nearly vertical throughout","Pure quad isolation with zero spinal loading","Week 5+: replaced by back squat — treat that as a new movement"]},
-    {name:"Barbell sumo deadlift",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Wide stance — feet outside shoulder width, toes out 30–45°","Bar over mid-foot, hands inside knees, grip just inside legs","Hinge and drop hips to grip bar — chest up, back flat","Drive floor away, squeeze inner thighs and glutes at top","More inner thigh and glute med than conventional — intentionally different pattern from Wednesday"]},
+    {name:"Spanish squat",sets:"3×12–15",rest:90,rpe:"7–8",cues:["Band or TRX anchored at squat rack at knee height","Lean back into band/TRX, feet flat, squat straight down","Knees track over toes — shins nearly vertical throughout","Pure quad isolation with zero spinal loading","Week 7+: replaced by back squat — treat that as a new movement"]},
+    {name:"Barbell sumo deadlift",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Wide stance — feet outside shoulder width, toes out 30–45°","Bar over mid-foot, hands inside knees","Hinge and drop hips to grip bar — chest up, back flat","Drive floor away, squeeze inner thighs and glutes at top","Intentionally different pattern from Wednesday — inner thigh and glute med focus"]},
+    {name:"Single-leg glute bridge",sets:"3×15 each",rest:60,rpe:"6–7",cues:["One knee bent (working leg), other leg extended straight","Drive through heel only, hips to ceiling","Hold 3s squeezing working glute hard","Hips must stay level — don't let one side drop","Moved here from Wednesday to reduce that day's posterior chain density"]},
     {name:"Back extension (Backstrom)",sets:"Per stage",rest:90,rpe:"varies",cues:["Same stage as Wednesday — progress both together","Stage 3: 3s down 2s up, slight dip at bottom intentional","Never push through sharp or radiating pain"]},
     {name:"Pallof press (cable)",sets:"3×12 each",rest:60,rpe:"6–7",cues:["Cable at chest height, stand sideways to machine","Press straight out, resist the rotation — hold 2s","Zero torso rotation is the entire exercise"]},
     {name:"Dead bug",sets:"3×10 each",rest:60,rpe:"6–7",cues:["Lower back pressed flat to floor throughout","Opposite arm and leg extend — 3s out, 3s back","Exhale as you extend — activates deep core stabilizers","If back lifts, reduce range of motion"]},
+    {name:"Standing calf raise",sets:"3×15–20",rest:45,rpe:"6–7",cues:["Full range — rise as high as possible, lower to full stretch","3s slow negative — eccentric loading drives adaptation","Pause at full stretch before next rep","Add load when 20 reps feels easy"]},
   ]},
 ];
 
 const MOBILITY = {
   morning:[
+    {section:"Pre-session warmup — do this before EVERY workout (2 min)",items:[
+      {name:"Cat-cow",time:"10 slow reps",desc:"On all fours, hands under shoulders. Arch back fully (cow — belly drops, head rises), then round fully (cat — belly pulls up, head drops). Slow and deliberate through full range.",why:"McGill: mobilizes every lumbar vertebra before loading. Reduces first-set injury risk. Non-negotiable before any deadlift or squat."},
+    ]},
     {section:"McGill Big 3 (5 min)",items:[
       {name:"McGill curl-up",time:"2 min",desc:"Lie flat, one knee bent, hands under lumbar curve. Curl head/shoulders 1 inch — hold 10s × 5 reps. Do NOT fully crunch.",why:"Spine flexion stability without damaging disc pressure"},
       {name:"Bird dog",time:"90 sec",desc:"On all fours, extend opposite arm/leg. Hold 10s, 5 reps each side. Spine completely neutral — no rotation.",why:"Anti-rotation core stability, decompresses lumbar spine"},
       {name:"Side bridge",time:"90 sec",desc:"Modified (from knee) or full. 10s holds × 3 each side. Rigid lateral line throughout.",why:"Lateral stabilizers, QL and obliques"},
     ]},
     {section:"Hip & Thoracic Flow (8 min)",items:[
-      {name:"90/90 hip stretch",time:"2×60s",desc:"Sit with front and back leg at 90°. Lean gently over front shin. Switch sides. Tall spine.",why:"Tight hips are a primary driver of low back pain"},
-      {name:"Couch stretch",time:"2×45s",desc:"Rear foot elevated on wall or bench, front leg at 90°. Squeeze glute, tilt pelvis. Critical for desk workers.",why:"Hip flexor length — drives anterior pelvic tilt and low back pain"},
+      {name:"90/90 hip stretch",time:"2×60s",desc:"Sit with front and back leg at 90°. Lean gently over front shin. Switch sides. Tall spine throughout.",why:"Tight hips are a primary driver of low back pain"},
+      {name:"Couch stretch",time:"2×45s",desc:"Rear foot elevated on wall or bench, front leg at 90°. Squeeze glute, tilt pelvis forward. Critical for desk workers.",why:"Hip flexor length — main driver of anterior pelvic tilt and low back pain"},
       {name:"Thoracic rotation on foam roller",time:"10 reps",desc:"Roller perpendicular at mid-back. Arms crossed. Rotate side to side slowly. 3 positions along T-spine.",why:"T-spine mobility offloads lumbar spine"},
       {name:"World's greatest stretch",time:"10 reps",desc:"Lunge forward, hand inside front foot, rotate and reach up. Alternate sides.",why:"Hip flexor, t-spine, hip rotator, hamstring — all in one"},
-      {name:"Deep squat hold",time:"2×30s",desc:"Hold rack at bottom squat. Elbows push knees out. Breathe deeply. Heels down if possible.",why:"Ankle, hip, and thoracic mobility"},
+      {name:"Deep squat hold",time:"2×30s",desc:"Hold rack at bottom squat. Elbows push knees out. Breathe deeply. Heels down if possible.",why:"Ankle, hip, and thoracic mobility — aging well requires floor movement"},
     ]},
     {section:"Shoulder & Neck (5 min)",items:[
-      {name:"Wall slides",time:"10 reps",desc:"Stand against wall, arms at 90°. Slide overhead keeping wrists, elbows, and back touching wall.",why:"Scapular control — reverses forward head posture"},
-      {name:"Neck half-circles (slow)",time:"10 each",desc:"Ear to shoulder, chin to chest, other ear — slow arc. No extension backward.",why:"Cervical decompression for forward head posture"},
-      {name:"Doorway chest stretch",time:"2×30s",desc:"Elbow at 90° on frame, gentle lean. Two positions: shoulder height then above head.",why:"Pec minor release — opens chest posture"},
+      {name:"Wall slides",time:"10 reps",desc:"Stand against wall, arms at 90°. Slide overhead keeping wrists, elbows, and entire back touching wall.",why:"Scapular control — reverses forward head posture from desk sitting"},
+      {name:"Neck half-circles (slow)",time:"10 each",desc:"Ear to shoulder, chin to chest, other ear — slow arc. No extension backward.",why:"Cervical decompression — critical for forward head posture"},
+      {name:"Doorway chest stretch",time:"2×30s",desc:"Elbow at 90° on frame, gentle lean. Two positions: shoulder height then above head.",why:"Pec minor release — opens chest posture for shoulder health"},
     ]},
   ],
   evening:[
-    {section:"Wind-Down Routine (10 min)",items:[
+    {section:"Training day wind-down — 5 min (on days you've trained)",items:[
+      {name:"Prone press-up (McKenzie)",time:"10 slow reps",desc:"Lie face down, hands under shoulders like a push-up position. Press your upper body up while keeping hips on the floor. Hold 2s at top. Lower slowly. Do NOT tense your glutes.",why:"McKenzie method: directly counteracts the flexion load your spine accumulates from sitting all day. McGill recommends this for disc health before bed on training days."},
+      {name:"Child's pose",time:"90 sec",desc:"Kneel, sit hips back toward heels, arms extended forward. Breathe into lower back with each exhale.",why:"Passive lumbar decompression"},
+      {name:"Diaphragmatic breathing",time:"2 min",desc:"Lie flat. One hand on chest, one on belly. Only belly hand rises. Slow 4s in, 6s out.",why:"Activates parasympathetic nervous system — switches off the stress response and accelerates recovery"},
+    ]},
+    {section:"Full wind-down — 10 min (rest days and non-training days)",items:[
+      {name:"Prone press-up (McKenzie)",time:"10 slow reps",desc:"Lie face down, hands under shoulders. Press upper body up, hips stay on floor, hold 2s. Counteracts all-day flexion load.",why:"Most important movement for disc health on sedentary days — do this without fail"},
       {name:"Supine figure-4 stretch",time:"2×60s",desc:"Lie on back, cross ankle over opposite knee. Gently pull uncrossed knee toward chest. Switch sides.",why:"Piriformis and glute release — reduces compressive low back tension"},
-      {name:"Child's pose",time:"2 min",desc:"Kneel, sit hips back toward heels, arms extended forward. Breathe into lower back with each exhale.",why:"Passive lumbar decompression — reverses compression from sitting"},
-      {name:"Legs up the wall",time:"3 min",desc:"Lie on back, swing legs straight up against wall. Arms relaxed at sides. Close eyes and breathe.",why:"Venous drainage, parasympathetic activation, spinal decompression"},
-      {name:"Supine spinal twist",time:"60s each",desc:"Lie flat, bring one knee across body to floor on opposite side. Arm out, look the other way. Relax into it.",why:"Thoracic and lumbar rotation release — reduces end-of-day stiffness"},
-      {name:"Diaphragmatic breathing",time:"2 min",desc:"Lie flat. One hand on chest, one on belly. Only belly hand rises. Slow 4s in, 6s out.",why:"Activates parasympathetic nervous system — accelerates recovery and reduces cortisol"},
+      {name:"Child's pose",time:"2 min",desc:"Kneel, sit hips back toward heels, arms extended forward. Breathe into lower back.",why:"Passive lumbar decompression"},
+      {name:"Legs up the wall",time:"3 min",desc:"Lie on back, swing legs straight up against wall. Arms relaxed. Eyes closed. Breathe.",why:"Venous drainage from legs, parasympathetic activation, spinal decompression"},
+      {name:"Supine spinal twist",time:"60s each",desc:"Lie flat, bring one knee across body to floor on opposite side. Arm out, look the other way. Relax fully into it.",why:"Thoracic and lumbar rotation release — reduces end-of-day spinal stiffness"},
+      {name:"Diaphragmatic breathing",time:"2 min",desc:"One hand on chest, one on belly. Only belly hand rises. 4s in, 6s out.",why:"Cortisol reduction, parasympathetic activation — accelerates recovery overnight"},
+    ]},
+    {section:"Week 8+ addition — Jefferson curl (progressive spinal loading)",items:[
+      {name:"Jefferson curl",time:"2×8 reps",desc:"Stand on a step or plate. Hold a light weight (5–10 lbs to start). Tuck chin to chest, curl spine forward vertebra by vertebra, reaching toward floor. Reverse slowly. This is loaded spinal flexion — the Backstrom end goal.",why:"Directly trains the small intrinsic spinal muscles in the range they've been rebuilding toward. Only add this once back extensions Stage 2 are solid and pain-free. Start with just bodyweight."},
     ]},
   ],
 };
@@ -506,12 +535,33 @@ function sessionKey() { return `w${S.week}_d${S.day}`; }
 function startDaySession() {
   const k = sessionKey();
   if(!S.sessionTimers[k]) S.sessionTimers[k] = { start: Date.now(), elapsed: 0, active: true };
-  else if(!S.sessionTimers[k].active) {
+  else {
     S.sessionTimers[k].active = true;
     S.sessionTimers[k].start = Date.now() - (S.sessionTimers[k].elapsed * 1000);
   }
   try { if('wakeLock' in navigator) navigator.wakeLock.request('screen'); } catch(e) {}
+  save();
   runSessionInterval();
+  render();
+}
+
+function pauseDaySession() {
+  const k = sessionKey();
+  if(S.sessionTimers[k]) {
+    S.sessionTimers[k].active = false;
+    S.sessionTimers[k].elapsed = Math.floor((Date.now() - S.sessionTimers[k].start) / 1000);
+  }
+  clearInterval(sessionInterval);
+  save();
+  render();
+}
+
+function resetDaySession() {
+  const k = sessionKey();
+  S.sessionTimers[k] = { start: Date.now(), elapsed: 0, active: false };
+  clearInterval(sessionInterval);
+  save();
+  render();
 }
 
 function runSessionInterval() {
@@ -527,14 +577,7 @@ function runSessionInterval() {
 }
 
 function endDaySession() {
-  const k = sessionKey();
-  if(S.sessionTimers[k]) {
-    S.sessionTimers[k].active = false;
-    S.sessionTimers[k].elapsed = Math.floor((Date.now() - S.sessionTimers[k].start) / 1000);
-  }
-  clearInterval(sessionInterval);
-  save();
-  render();
+  pauseDaySession();
 }
 
 function fmtTime(secs) {
@@ -544,10 +587,6 @@ function fmtTime(secs) {
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
 function navTo(page) {
-  if(S.day !== null && S.page === 'workout') {
-    const k = sessionKey();
-    if(S.sessionTimers[k]?.active) endDaySession();
-  }
   S.page = page; S.day = null; S.ex = null;
   document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
   document.getElementById('nav-' + page)?.classList.add('active');
@@ -600,6 +639,24 @@ function renderWorkout(c) {
     </div>`;
   });
   h += `</div>`;
+
+  const vo2week = S.week >= 7;
+  const thurDesc = vo2week
+    ? `20 min easy warmup, then 4 rounds of 4 min hard / 4 min easy. Hard = 90–95% max HR — too breathless to speak.`
+    : `40–45 min Zone 2 walk or easy bike at conversational pace throughout.`;
+  h += `<div class="sl">Rest days & cardio</div><div class="card">
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:0.5px solid var(--bdr2);">
+      <div style="width:36px;height:36px;border-radius:10px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">🚶</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:500;">Thursday${vo2week?' <span class="badge bg-amber">VO2 max</span>':' <span class="badge bg-green">Zone 2</span>'}</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:3px;line-height:1.5;">${thurDesc}</div></div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;">
+      <div style="width:36px;height:36px;border-radius:10px;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">😴</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:500;">Sunday — Zone 2 <span class="badge bg-green">Easy</span></div>
+      <div style="font-size:12px;color:var(--t2);margin-top:3px;line-height:1.5;">30–40 min easy walk or bike. Conversational pace. Never fully sedentary on rest days — gentle movement accelerates recovery.</div></div>
+    </div>
+  </div>`;
+
   c.innerHTML = h;
 }
 
@@ -607,7 +664,6 @@ function chWeek(d) { S.week = Math.max(1, Math.min(12, S.week+d)); save(); rende
 
 function openDay(i) {
   S.day = i;
-  startDaySession();
   render();
 }
 
@@ -617,22 +673,38 @@ function renderDay(c) {
   const k = sessionKey();
   const timer = S.sessionTimers[k];
   const exercises = getExercisesForWeek(S.day, S.week);
+  const isActive = timer?.active || false;
+  const elapsed = timer?.elapsed || 0;
 
   let h = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
     <button onclick="backFromDay()" style="background:none;border:none;cursor:pointer;color:var(--t2);font-size:26px;padding:0;line-height:1;">←</button>
-    <div><div class="pt" style="font-size:18px;">${day.name}</div><div class="ps">${day.sub}</div></div>
+    <div style="flex:1;"><div class="pt" style="font-size:18px;">${day.name}</div><div class="ps">${day.sub}</div></div>
   </div>`;
 
-  // Session timer bar
-  h += `<div class="session-bar">
+  // Week switcher
+  h += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;background:var(--card);border-radius:var(--rs);border:0.5px solid var(--bdr);padding:10px 14px;">
+    <span style="font-size:12px;color:var(--t2);flex:1;">Viewing week</span>
+    <button onclick="chDayWeek(-1)" ${S.week<=1?'disabled':''} style="background:var(--surf);border:0.5px solid var(--bdr);border-radius:6px;width:30px;height:30px;font-size:16px;cursor:pointer;color:var(--t);">−</button>
+    <span class="wbadge">Wk ${S.week}</span>
+    <button onclick="chDayWeek(1)" ${S.week>=12?'disabled':''} style="background:var(--surf);border:0.5px solid var(--bdr);border-radius:6px;width:30px;height:30px;font-size:16px;cursor:pointer;color:var(--t);">+</button>
+  </div>`;
+
+  // Session timer — manual controls
+  h += `<div class="session-bar" style="margin-bottom:14px;">
     <div class="sb-left">
-      <div class="sb-label">Session time</div>
-      <div class="sb-time" id="day-session-time">${fmtTime(timer?.elapsed||0)}</div>
+      <div class="sb-label">Session timer</div>
+      <div class="sb-time" id="day-session-time">${fmtTime(elapsed)}</div>
       <div class="sb-stats">
-        <span class="sb-stat">${Object.keys(S.logs).filter(k2=>k2.startsWith(`w${S.week}_d${S.day}`)).length} / ${exercises.length} exercises logged</span>
+        <span class="sb-stat">${Object.keys(S.logs).filter(k2=>k2.startsWith(`w${S.week}_d${S.day}`)).length} / ${exercises.length} logged</span>
       </div>
     </div>
-    <button class="sb-end" onclick="endDaySession()">End session</button>
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+      ${isActive
+        ? `<button class="sb-end" onclick="pauseDaySession()">⏸ Pause</button>`
+        : `<button class="sb-end" onclick="startDaySession()">${elapsed>0?'▶ Resume':'▶ Start'}</button>`
+      }
+      <button onclick="resetDaySession()" style="background:rgba(255,255,255,0.12);border:none;color:rgba(255,255,255,0.8);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:inherit;">↺ Reset</button>
+    </div>
   </div>`;
 
   h += `<div class="card">`;
@@ -656,16 +728,16 @@ function renderDay(c) {
   }
 
   c.innerHTML = h;
-  if(timer?.active) runSessionInterval();
+  if(isActive) runSessionInterval();
+}
+
+function chDayWeek(dir) {
+  S.week = Math.max(1, Math.min(12, S.week + dir));
+  save();
+  render();
 }
 
 function backFromDay() {
-  const k = sessionKey();
-  if(S.sessionTimers[k]?.active) {
-    S.sessionTimers[k].active = false;
-    S.sessionTimers[k].elapsed = Math.floor((Date.now() - S.sessionTimers[k].start) / 1000);
-    save();
-  }
   clearInterval(sessionInterval);
   S.day = null; S.ex = null;
   render();
