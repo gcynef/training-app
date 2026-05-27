@@ -260,15 +260,15 @@ const PHASES = [
   { weeks:[1,2],  label:"Weeks 1–2 · Technical onboarding", color:"#0F6E56", rpe:"6–7",
     desc:"Learn movement patterns at light load. RPE 6–7 — 3–4 reps left in the tank every set. Cat-cow warmup before every session. Zone 2: Thursday 40 min walk. Sunday 30 min walk.",
     tags:["3 sets","15–20 reps","RPE 6–7","Light load","Zone 2 Thu + Sun"],
-    newMoves:["Zercher squat — empty bar pattern only","Barbell sumo deadlift — technique focus","Back extension Stage 1 (2 min isometric hold)","Spanish squat — learn position","Dead hangs Mon + Fri (3×20s)","Calf raises both lower days (3×15–20)","Shrugs Mon + Fri (2×15)"] },
+    newMoves:["Zercher squat — empty bar pattern only","Barbell sumo deadlift — technique focus","Heel-elevated back squat — learn the upright position","Back extension Stage 1 (2 min isometric hold)","Dead hangs Mon + Fri (3×20s)","Calf raises both lower days","Shrugs Mon + Fri","Daily ankle mobility — fixing the squat limitation"] },
   { weeks:[3,6],  label:"Weeks 3–6 · Hypertrophy block A", color:"#185FA5", rpe:"7–8",
     desc:"Progressive overload begins. Top set (4–6 reps, RPE 8) added to primary compound each day before working sets. RDL returns Week 3. Zone 2: Thursday 40 min + Sunday 30–40 min.",
     tags:["3–4 sets","8–12 reps","RPE 7–8","Top sets","Progressive overload"],
-    newMoves:["Top set added to Zercher, trap bar, hip thrust, split squat","RDL returns Week 3 (DB)","Barbell RDL replaces DB RDL (Week 5)","Back extension Stage 2 (single-leg holds, Week 3)","Back squat introduced Week 7 — not Week 5 (pushed back for safety)"] },
+    newMoves:["Top set added to Zercher, trap bar, hip thrust, split squat","RDL returns Week 3 (DB)","Barbell RDL replaces DB RDL (Week 5)","Back extension Stage 2 (single-leg holds, Week 3)","Heel-elevated back squat continues building load"] },
   { weeks:[7,10], label:"Weeks 7–10 · Hypertrophy block B", color:"#854F0B", rpe:"8–9",
-    desc:"Intensity climbs. Supersets introduced. Conventional deadlift replaces trap bar. Back squat is now a primary lift. VO2 max intervals replace Thursday walk from Week 7.",
+    desc:"Intensity climbs. Supersets introduced. Conventional deadlift replaces trap bar. Heel-elevated back squat gets a heavy top set. VO2 max intervals replace Thursday walk from Week 7.",
     tags:["4 sets","8–12 reps","RPE 8–9","Supersets","VO2 max Thu"],
-    newMoves:["Conventional deadlift from floor (replaces trap bar, Wed)","Back squat as primary lift (replaces Spanish squat, Sat)","Back extension Stage 3 — full range reps","VO2 max intervals Thursday: 4 min hard / 4 min easy × 4 rounds","Jefferson curl added to evening mobility (Week 8)"] },
+    newMoves:["Conventional deadlift from floor (replaces trap bar, Wed)","Heel-elevated back squat top set added (Sat)","Back extension Stage 3 — full range reps","VO2 max intervals Thursday: 4 min hard / 4 min easy × 4 rounds","Jefferson curl added to evening mobility (Week 8)"] },
   { weeks:[11,11],label:"Week 11 · Deload", color:"#534AB7", rpe:"5",
     desc:"50% volume, same weights, RPE 5. Full morning and evening mobility every day. Zone 2 only — no VO2 max this week. Tendons and joints catch up to muscles.",
     tags:["2 sets","Same weight","RPE 5","Full mobility","Zone 2 only"],
@@ -307,11 +307,11 @@ function getExercisesForWeek(dayIdx, week) {
     }
   }
   if(dayIdx === 4) { // Saturday Lower B
-    const sqIdx = base.findIndex(e => e.name === "Spanish squat");
+    const sqIdx = base.findIndex(e => e.name === "Heel-elevated back squat");
     if(week >= 7 && sqIdx !== -1) {
-      base[sqIdx] = { ...base[sqIdx], name:"Back squat", phase:"Week 7+",
-        sets: week >= 9 ? "1×4–6 top set, then 3×6–8" : "3×8–10",
-        cues:["Bar on upper traps (high bar) or rear delts (low bar) — experiment with both","Brace hard before unracking — big breath into belly, tight core","Sit between your heels, depth to parallel or below","Drive knees out, chest stays tall throughout","Weeks 7–8: learning phase — RPE 7 max, no heroics","Week 9+: add a top set of 4–6 reps at RPE 8 before working sets"] };
+      base[sqIdx] = { ...base[sqIdx], phase:"Top set added",
+        sets: week >= 9 ? "1×4–6 top set, then 3×6–8" : "1×6–8 top set, then 3×8–10",
+        cues:[...base[sqIdx].cues,"From Week 7: add a top set before working sets — work up to a heavy set at RPE 8","Keep the heel elevation regardless of load — it protects your back","As ankle mobility improves over the cycle, you may need less elevation"] };
     }
     const bssIdx = base.findIndex(e => e.name === "Bulgarian split squat (DB)");
     if(week >= 3 && bssIdx !== -1) {
@@ -326,7 +326,7 @@ function getExercisesForWeek(dayIdx, week) {
 const DAYS = [
   { name:"Monday — Upper A", emoji:"💪", bg:"#E6F1FB", sub:"Pull focus + arms + traps", exercises:[
     {name:"Chest-supported DB row",sets:"4×10–12",rest:90,rpe:"7–8",cues:["Bench at 30–45° incline, lie face-down","Neutral grip — palms facing each other, DBs vertical","Elbows at 45–60° from torso — not wide, not tucked","Full dead-hang stretch at the bottom of every rep","Cue: drive elbows into your back pockets","Squeeze shoulder blades fully at the top"]},
-    {name:"Cable lat pulldown (wide)",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Overhand grip, slightly wider than shoulder-width","Full shoulder blade rise at the top — don't cut short","Lean back 10–15°, drive elbows to back pockets","Bar to upper chest, squeeze lats 1s at bottom"]},
+    {name:"Kneeling cable pulldown",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Kneel facing the cable machine, sit back on heels for stability — no leg pad needed","Overhand grip slightly wider than shoulder-width, or neutral grip if shoulder sensitivity","Full stretch at the top — let shoulder blades rise fully before each rep","Lean back slightly 10–15°, drive elbows down and toward your back pockets","Bar or rope to upper chest, squeeze lats hard for 1s at the bottom","Kneeling gives enough ground resistance to load properly without being pulled up"]},
     {name:"Cable face pull",sets:"3×15",rest:60,rpe:"6–7",cues:["Pulley at forehead height, rope attachment","Drive elbows back and wide — flared, not tucked","Pull rope toward forehead, split rope at the end","External rotate fully — knuckles pointing to ceiling"]},
     {name:"Neutral-grip cable row",sets:"3×12",rest:90,rpe:"7–8",cues:["Neutral grip, chest tall throughout","Row to sternum, elbows at 45°","Back pockets cue applies here too","Full shoulder blade squeeze at top"]},
     {name:"DB shrug",sets:"3×15",rest:60,rpe:"6–7",cues:["Heavy DBs at sides, arms straight","Shrug straight up — not forward, not rolling","Hold the top position 2s, squeeze upper traps hard","Slow controlled descent — don't just drop it","Direct upper trap work corrects forward head posture from desk sitting"]},
@@ -353,8 +353,8 @@ const DAYS = [
   ]},
   { name:"Friday — Upper B", emoji:"⚡", bg:"#EEEDFE", sub:"Pull + chest + arms + traps", exercises:[
     {name:"Neutral-grip pull-up / lat pulldown",sets:"4×8–10",rest:90,rpe:"7–8",cues:["Full dead hang at bottom — shoulder blades rise fully","Drive elbows down and toward back pockets","Neutral grip — easiest on shoulder joint"]},
-    {name:"Single-arm DB row",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Same-side knee and hand on bench, back flat","Drive elbow to ceiling — the DB is just a handle","Small natural torso rotation at top is fine"]},
-    {name:"Flat DB press",sets:"3×10–12",rest:90,rpe:"7–8",cues:["DBs allow free wrist rotation — removes impingement","Elbows at 70° from torso","DBs travel slightly lower than bar — use that range"]},
+    {name:"Single-arm DB row",sets:"3×10–12",rest:90,rpe:"7–8",cues:["TARGET: upper back (rhomboids, mid traps) — NOT lats","Same-side knee and hand on bench, back flat and neutral","Elbow flares out to 60–70° from torso — halfway between tucked and fully wide","Think: elbow pointing to the corner of the room behind you, not toward your hip","Lead with elbow going toward the ceiling — the DB is just a handle","At the top: squeeze shoulder blade toward spine — that retraction IS the movement","Feel it between your shoulder blades, not down the side of your torso","90° is too wide — stops there and shoulder impingement risk climbs","Small natural torso rotation at top is fine, exaggerating it is not"]},
+    {name:"Flat DB press",sets:"3×10–12",rest:90,rpe:"7–8",cues:["DBs allow free wrist rotation throughout — this is what removes the shoulder impingement the barbell causes","Elbows at 70° from your torso — not 90° (shoulder stress) and not tucked (loses chest activation)","Wrists stacked directly over elbows throughout — if wrists are bending back, grip is wrong","Lower until deep chest stretch — DBs can go slightly below chest level unlike a bar. Stop when you feel stretch in outer pec, not shoulder pinching","BOTTOM: pause 1 full second — no bounce, no stretch reflex. Forces genuine muscle control.","MIND-MUSCLE: aim for mid-to-outer pec (the thicker region toward your armpit) — NOT inner chest. Inner chest is what cable flies are for.","On the press: imagine pushing your hands toward each other slightly without moving them — activates more mid chest fibers","Drive up and very slightly together — a gentle arc, not straight up"]},
     {name:"Cable fly (mid pulley)",sets:"3×12–15",rest:75,rpe:"7–8",cues:["Mid pulley — chest height with arms out","Sweep inward, slightly supinate wrists at finish","1s pause with hands together"]},
     {name:"DB shrug",sets:"3×15",rest:60,rpe:"6–7",cues:["Heavy DBs at sides, shrug straight up — not rolling","Hold top 2s, squeeze upper traps hard","Slow controlled descent"]},
     {name:"Dead hang",sets:"3×20–30s",rest:60,rpe:"6",cues:["Full hang, arms straight, shoulders fully decompressed","Breathe slowly and relax — don't actively pull","Build toward 60s holds over 12 weeks","Spinal decompression + grip strength — high longevity value"]},
@@ -365,9 +365,8 @@ const DAYS = [
   ]},
   { name:"Saturday — Lower B", emoji:"🏋️", bg:"#FAECE7", sub:"Quad, core & glute isolation", exercises:[
     {name:"Bulgarian split squat (DB)",sets:"4×10 each",rest:90,rpe:"7–8",cues:["Rear foot elevated, front foot far enough for vertical shin","Lower straight down — not forward","Drive through front heel — quad and glute do the work","First few sessions feel unstable — lighter weight until solid"]},
-    {name:"Spanish squat",sets:"3×12–15",rest:90,rpe:"7–8",cues:["Band or TRX anchored at squat rack at knee height","Lean back into band/TRX, feet flat, squat straight down","Knees track over toes — shins nearly vertical throughout","Pure quad isolation with zero spinal loading","Week 7+: replaced by back squat — treat that as a new movement"]},
+    {name:"Heel-elevated back squat",sets:"3×8–12",rest:120,rpe:"7–8",cues:["Heels on a small ramp or 1–2 inch of plates — this compensates for ankle mobility limitation","Bar on upper traps, brace hard before unracking","Heel elevation lets you stay UPRIGHT — this is the whole point, it keeps load off your lower back","Sit straight down between your heels, chest tall, knees track forward over toes","If your back rounds or pitches forward, the elevation isn't high enough — add more","Loadable with the full barbell so your legs are the limit, not your grip","If this still bothers your back, stop and switch to single-leg work only — tell no one you need to push through it"]},
     {name:"Barbell sumo deadlift",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Wide stance — feet outside shoulder width, toes out 30–45°","Bar over mid-foot, hands inside knees","Hinge and drop hips to grip bar — chest up, back flat","Drive floor away, squeeze inner thighs and glutes at top","Intentionally different pattern from Wednesday — inner thigh and glute med focus"]},
-    {name:"Single-leg glute bridge",sets:"3×15 each",rest:60,rpe:"6–7",cues:["One knee bent (working leg), other leg extended straight","Drive through heel only, hips to ceiling","Hold 3s squeezing working glute hard","Hips must stay level — don't let one side drop","Moved here from Wednesday to reduce that day's posterior chain density"]},
     {name:"Back extension (Backstrom)",sets:"Per stage",rest:90,rpe:"varies",cues:["Same stage as Wednesday — progress both together","Stage 3: 3s down 2s up, slight dip at bottom intentional","Never push through sharp or radiating pain"]},
     {name:"Pallof press (cable)",sets:"3×12 each",rest:60,rpe:"6–7",cues:["Cable at chest height, stand sideways to machine","Press straight out, resist the rotation — hold 2s","Zero torso rotation is the entire exercise"]},
     {name:"Dead bug",sets:"3×10 each",rest:60,rpe:"6–7",cues:["Lower back pressed flat to floor throughout","Opposite arm and leg extend — 3s out, 3s back","Exhale as you extend — activates deep core stabilizers","If back lifts, reduce range of motion"]},
@@ -384,6 +383,11 @@ const MOBILITY = {
       {name:"McGill curl-up",time:"2 min",desc:"Lie flat, one knee bent, hands under lumbar curve. Curl head/shoulders 1 inch — hold 10s × 5 reps. Do NOT fully crunch.",why:"Spine flexion stability without damaging disc pressure"},
       {name:"Bird dog",time:"90 sec",desc:"On all fours, extend opposite arm/leg. Hold 10s, 5 reps each side. Spine completely neutral — no rotation.",why:"Anti-rotation core stability, decompresses lumbar spine"},
       {name:"Side bridge",time:"90 sec",desc:"Modified (from knee) or full. 10s holds × 3 each side. Rigid lateral line throughout.",why:"Lateral stabilizers, QL and obliques"},
+    ]},
+    {section:"Ankle Mobility (4 min) — added to fix squat limitation",items:[
+      {name:"Wall ankle dorsiflexion drill",time:"2×10 each",desc:"Face a wall, foot ~4 inches back. Drive your knee forward over your toes to touch the wall WITHOUT your heel lifting. Move the foot back as it gets easier. Both legs.",why:"Directly trains the dorsiflexion range that limits your squat depth and forces your back to compensate. This is the root-cause fix for your front squat back pain."},
+      {name:"Weighted deep squat heel-down hold",time:"2×30s",desc:"Hold light weight at chest, sink into deep squat, actively drive heels into floor and knees out. Keep heels flat the whole time.",why:"Loaded ankle and hip stretch under tension — builds usable end-range mobility, not just passive flexibility"},
+      {name:"Calf & soleus stretch",time:"2×30s each",desc:"Straight back leg against wall (calf/gastroc), then bent back knee (soleus). Heel stays down. Both positions, both legs.",why:"Tight calves restrict dorsiflexion — the soleus especially limits the knee-forward range needed for upright squatting"},
     ]},
     {section:"Hip & Thoracic Flow (8 min)",items:[
       {name:"90/90 hip stretch",time:"2×60s",desc:"Sit with front and back leg at 90°. Lean gently over front shin. Switch sides. Tall spine throughout.",why:"Tight hips are a primary driver of low back pain"},
@@ -470,56 +474,103 @@ function playDone() {
   setTimeout(() => playBeep(1100, 0.3, 0.6), 400);
 }
 
-// ── REST TIMER (SW-backed) ────────────────────────────────────────────────────
+// ── REST TIMER (timestamp-based — survives Firefox/Chrome background throttling) ──
 let restActive = false, restTotal = 90;
-let pageRestInterval = null;
+let restEndTime = 0;        // absolute timestamp when timer should hit zero
+let restRafId = null;       // requestAnimationFrame id
+let restTickInterval = null;// backup interval
+let restDoneFired = false;
 
 async function startRestTimer(seconds, exName) {
-  restTotal = seconds; restActive = true;
+  restTotal = seconds;
+  restActive = true;
+  restDoneFired = false;
+  restEndTime = Date.now() + seconds * 1000;  // fixed target — real time keeps moving even if JS is throttled
   document.getElementById('rest-ex-name').textContent = 'Rest after: ' + exName;
   document.getElementById('rest-overlay').classList.remove('hidden');
   updateRestArc(seconds, seconds);
   try { getAudio().resume(); } catch(e) {}
+
+  // Tell the service worker too (for background notification when app is fully closed)
   const reg = await navigator.serviceWorker?.ready;
-  if(reg?.active) {
-    reg.active.postMessage({ type:'START_TIMER', seconds });
-  } else {
-    // Page-based fallback
-    const start = Date.now();
-    if(pageRestInterval) clearInterval(pageRestInterval);
-    pageRestInterval = setInterval(() => {
-      const rem = Math.max(0, seconds - Math.floor((Date.now()-start)/1000));
-      updateRestArc(rem, seconds);
-      if(rem <= 0) { clearInterval(pageRestInterval); onRestDone(); }
-    }, 250);
+  if(reg?.active) reg.active.postMessage({ type:'START_TIMER', seconds });
+
+  // Drive the display from the fixed end-time, not a counting variable.
+  // Two redundant drivers so if one is throttled the other recovers.
+  startRestDrivers();
+}
+
+function startRestDrivers() {
+  stopRestDrivers();
+  // Backup interval (works when tab visible; may be throttled in background — that's fine)
+  restTickInterval = setInterval(tickRest, 250);
+  // RAF loop (smooth when visible)
+  const raf = () => {
+    if(!restActive) return;
+    tickRest();
+    restRafId = requestAnimationFrame(raf);
+  };
+  restRafId = requestAnimationFrame(raf);
+}
+
+function stopRestDrivers() {
+  if(restTickInterval) { clearInterval(restTickInterval); restTickInterval = null; }
+  if(restRafId) { cancelAnimationFrame(restRafId); restRafId = null; }
+}
+
+function tickRest() {
+  if(!restActive) return;
+  const remMs = restEndTime - Date.now();
+  const rem = Math.max(0, Math.ceil(remMs / 1000));
+  updateRestArc(rem, restTotal);
+  if(remMs <= 0 && !restDoneFired) {
+    restDoneFired = true;
+    restActive = false;
+    stopRestDrivers();
+    onRestDone();
   }
 }
 
+// When the app regains focus (e.g. you switch back from another app or unlock the
+// screen), immediately recalculate — this is what fixes the Firefox "freeze" issue.
+document.addEventListener('visibilitychange', () => {
+  if(!document.hidden && restActive) {
+    startRestDrivers();  // restart drivers and instantly recompute from the fixed end-time
+    tickRest();
+  }
+});
+window.addEventListener('focus', () => { if(restActive) { tickRest(); } });
+
 if('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('message', e => {
-    if(e.data.type === 'TIMER_TICK') updateRestArc(e.data.remaining, e.data.total);
-    if(e.data.type === 'TIMER_DONE') onRestDone();
+    // SW messages now only matter for the background notification; the display is timestamp-driven.
+    if(e.data.type === 'TIMER_DONE' && restActive && !restDoneFired) {
+      restDoneFired = true;
+      restActive = false;
+      stopRestDrivers();
+      onRestDone();
+    }
   });
 }
 
 function onRestDone() {
-  restActive = false;
   playDone();
   if(navigator.vibrate) navigator.vibrate([300,100,300,100,500]);
   setTimeout(() => document.getElementById('rest-overlay').classList.add('hidden'), 1200);
 }
 function updateRestArc(rem, total) {
-  if(!restActive) return;
-  document.getElementById('rest-display').textContent = rem;
-  document.getElementById('rest-arc').style.strokeDashoffset = 527.79 * (1 - rem/total);
+  const disp = document.getElementById('rest-display');
+  const arc = document.getElementById('rest-arc');
+  if(disp) disp.textContent = rem;
+  if(arc) arc.style.strokeDashoffset = 527.79 * (1 - rem/total);
 }
 function skipRest() {
-  restActive = false; clearInterval(pageRestInterval); stopSWTimer();
+  restActive = false; restDoneFired = true; stopRestDrivers(); stopSWTimer();
   document.getElementById('rest-overlay').classList.add('hidden');
   if(navigator.vibrate) navigator.vibrate(80);
 }
 function stopRest() {
-  restActive = false; clearInterval(pageRestInterval); stopSWTimer();
+  restActive = false; restDoneFired = true; stopRestDrivers(); stopSWTimer();
   document.getElementById('rest-overlay').classList.add('hidden');
 }
 async function stopSWTimer() {
@@ -566,15 +617,26 @@ function resetDaySession() {
 
 function runSessionInterval() {
   if(sessionInterval) clearInterval(sessionInterval);
-  sessionInterval = setInterval(() => {
-    const k = sessionKey();
-    if(!S.sessionTimers[k]?.active) { clearInterval(sessionInterval); return; }
-    const elapsed = Math.floor((Date.now() - S.sessionTimers[k].start) / 1000);
-    S.sessionTimers[k].elapsed = elapsed;
-    const el = document.getElementById('day-session-time');
-    if(el) el.textContent = fmtTime(elapsed);
-  }, 1000);
+  sessionInterval = setInterval(updateSessionDisplay, 1000);
+  updateSessionDisplay();
 }
+
+function updateSessionDisplay() {
+  const k = sessionKey();
+  if(!S.sessionTimers[k]?.active) { clearInterval(sessionInterval); return; }
+  const elapsed = Math.floor((Date.now() - S.sessionTimers[k].start) / 1000);
+  S.sessionTimers[k].elapsed = elapsed;
+  const el = document.getElementById('day-session-time');
+  if(el) el.textContent = fmtTime(elapsed);
+}
+
+// Recover session timer display when returning to the app (fixes background freeze)
+document.addEventListener('visibilitychange', () => {
+  if(!document.hidden && S.day !== null) {
+    const k = sessionKey();
+    if(S.sessionTimers[k]?.active) { runSessionInterval(); }
+  }
+});
 
 function endDaySession() {
   pauseDaySession();
@@ -1132,7 +1194,7 @@ function deletePhoto(idx){
 // ── TOOLS ─────────────────────────────────────────────────────────────────────
 function renderTools(c){
   let h=`<div class="ph"><div class="pt">Tools</div></div>`;
-  h+=`<div class="tabs"><button class="tab active" onclick="tTab('1rm',this)">1RM calc</button><button class="tab" onclick="tTab('plate',this)">Plate calc</button><button class="tab" onclick="tTab('prog',this)">Program map</button></div>`;
+  h+=`<div class="tabs"><button class="tab active" onclick="tTab('1rm',this)">1RM</button><button class="tab" onclick="tTab('plate',this)">Plates</button><button class="tab" onclick="tTab('prog',this)">Map</button><button class="tab" onclick="tTab('backup',this)">Backup</button></div>`;
 
   h+=`<div id="tt-1rm"><div class="sl">Estimate your 1 rep max</div><div class="card cp">
     <div class="r2">
@@ -1174,12 +1236,76 @@ function renderTools(c){
   });
   h+=`</div>`;
 
+  // Backup & Restore
+  h+=`<div id="tt-backup" style="display:none;">
+    <div class="sl">Backup your data</div>
+    <div class="card cp" style="margin-bottom:12px;">
+      <p style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:12px;">Downloads everything — all logged sets, body weight history, session times, and reminders — as a backup file. Your data lives only on this device, so back it up before any app update or if you switch phones.</p>
+      <button class="btn btn-p" onclick="exportData()">⬇ Download backup file</button>
+    </div>
+    <div class="sl">Restore from backup</div>
+    <div class="card cp">
+      <p style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:12px;">Load a previously downloaded backup file. This replaces all current data with the backup contents.</p>
+      <label class="btn btn-s" for="restore-input" style="cursor:pointer;">⬆ Choose backup file</label>
+      <input type="file" id="restore-input" accept=".json" style="display:none;" onchange="importData(this)">
+    </div>
+    <div style="background:var(--green-lt);border-radius:var(--rs);padding:10px 12px;margin-top:12px;font-size:12px;color:var(--green);line-height:1.5;">
+      <strong>Note:</strong> App updates (uploading new files to GitHub) do NOT erase your data — it's stored separately in your browser. This backup is extra insurance for switching devices or clearing your browser.
+    </div>
+  </div>`;
+
   c.innerHTML=h;
 }
 
 function tTab(t,btn){
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  ['1rm','plate','prog'].forEach(id=>document.getElementById(`tt-${id}`).style.display=id===t?'':'none');
+  ['1rm','plate','prog','backup'].forEach(id=>document.getElementById(`tt-${id}`).style.display=id===t?'':'none');
+}
+
+function exportData(){
+  const data = {
+    version: 'tapp_v4',
+    exported: new Date().toISOString(),
+    logs: S.logs,
+    weights: S.weights,
+    week: S.week,
+    reminders: S.reminders,
+    sessionTimers: S.sessionTimers,
+    photos: S.photos,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `training-backup-${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(!confirm('This will replace all your current data with the backup. Continue?')) { input.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if(data.logs) S.logs = data.logs;
+      if(data.weights) S.weights = data.weights;
+      if(data.week) S.week = data.week;
+      if(data.reminders) S.reminders = { ...S.reminders, ...data.reminders };
+      if(data.sessionTimers) S.sessionTimers = data.sessionTimers;
+      if(data.photos) { S.photos = data.photos; try{localStorage.setItem('tapp_photos',JSON.stringify(S.photos));}catch(err){} }
+      save();
+      alert('Data restored successfully!');
+      navTo('workout');
+    } catch(err) {
+      alert('Could not read that file — make sure it\'s a valid backup file.');
+    }
+  };
+  reader.readAsText(file);
 }
 
 function calc1RM(){
