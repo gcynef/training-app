@@ -24,19 +24,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ni.active{color:var(--blue);}
 .ni svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
 
-/* Rest overlay */
-#rest-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;}
-#rest-overlay.hidden{display:none;}
-.rc{width:190px;height:190px;position:relative;}
-.rc svg{transform:rotate(-90deg);}
-.rc-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.rc-secs{font-size:52px;font-weight:700;color:white;font-variant-numeric:tabular-nums;line-height:1;}
-.rc-lbl{font-size:12px;color:rgba(255,255,255,0.65);margin-top:4px;}
-.rc-name{color:white;font-size:15px;font-weight:500;text-align:center;padding:0 24px;max-width:320px;}
-.rest-btns{display:flex;gap:10px;}
-.rbtn{padding:11px 22px;border-radius:24px;border:none;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;}
-.rbtn-skip{background:rgba(255,255,255,0.18);color:white;}
-.rbtn-stop{background:white;color:var(--t);}
+/* Rest bar — compact, sits above bottom nav, doesn't block the screen */
+#rest-bar{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom));z-index:150;background:var(--blue);color:white;display:flex;align-items:center;gap:12px;padding:10px 14px;box-shadow:0 -2px 12px rgba(0,0,0,0.2);}
+#rest-bar.hidden{display:none;}
+.rest-bar-ring{position:relative;width:44px;height:44px;flex-shrink:0;}
+.rest-bar-secs{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;font-variant-numeric:tabular-nums;}
+.rest-bar-info{flex:1;min-width:0;}
+.rest-bar-label{font-size:11px;opacity:0.8;}
+.rest-bar-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rest-bar-btn{flex-shrink:0;border:none;border-radius:20px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.rest-bar-skip{background:rgba(255,255,255,0.2);color:white;}
+.rest-bar-add{background:white;color:var(--blue);}
 
 /* Session timer bar — shown at top of day view */
 .session-bar{background:var(--blue);color:white;border-radius:var(--r);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
@@ -239,19 +237,20 @@ input:checked+.rslider:before{transform:translateX(18px);}
   </nav>
 </div>
 
-<div id="rest-overlay" class="hidden">
-  <div class="rc">
-    <svg width="190" height="190" viewBox="0 0 190 190">
-      <circle cx="95" cy="95" r="84" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="10"/>
-      <circle id="rest-arc" cx="95" cy="95" r="84" fill="none" stroke="white" stroke-width="10" stroke-dasharray="527.79" stroke-dashoffset="0" stroke-linecap="round"/>
+<div id="rest-bar" class="hidden">
+  <div class="rest-bar-ring">
+    <svg width="44" height="44" viewBox="0 0 44 44">
+      <circle cx="22" cy="22" r="19" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="4"/>
+      <circle id="rest-arc" cx="22" cy="22" r="19" fill="none" stroke="white" stroke-width="4" stroke-dasharray="119.38" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 22 22)"/>
     </svg>
-    <div class="rc-text"><div class="rc-secs" id="rest-display">90</div><div class="rc-lbl">seconds rest</div></div>
+    <div class="rest-bar-secs" id="rest-display">90</div>
   </div>
-  <div class="rc-name" id="rest-ex-name"></div>
-  <div class="rest-btns">
-    <button class="rbtn rbtn-skip" onclick="skipRest()">Skip rest</button>
-    <button class="rbtn rbtn-stop" onclick="stopRest()">Cancel</button>
+  <div class="rest-bar-info">
+    <div class="rest-bar-label">Resting</div>
+    <div class="rest-bar-name" id="rest-ex-name"></div>
   </div>
+  <button class="rest-bar-btn rest-bar-skip" onclick="skipRest()">Skip</button>
+  <button class="rest-bar-btn rest-bar-add" onclick="addRestTime(15)">+15s</button>
 </div>
 
 <script>
@@ -287,37 +286,47 @@ function getExercisesForWeek(dayIdx, week) {
   const base = JSON.parse(JSON.stringify(DAYS[dayIdx].exercises));
   if(dayIdx === 2) { // Wednesday Lower A
     const rdlIdx = base.findIndex(e => e.name === "Romanian deadlift (DB)");
-    if(week <= 2 && rdlIdx !== -1) {
-      base[rdlIdx] = { name:"Nordic curl negative (or lying hamstring curl)", sets:"3×6–8", rest:90, rpe:"6–7", phase:"Wks 1–2",
-        cues:["Anchor feet under rack or have a partner hold","Lower yourself as slowly as possible — 4–6s down","Catch yourself at the bottom, push back up with hands","Goal is controlling the negative — not the concentric","Week 3+: replaced by RDL for greater hamstring load"] };
-    } else if(week >= 5 && rdlIdx !== -1) {
-      base[rdlIdx] = { ...base[rdlIdx], name:"Romanian deadlift (barbell)", phase:"Week 5+",
+    if(week <= 6 && rdlIdx !== -1) {
+      // Weeks 1-6: nordic curl negatives (was weeks 1-2, extended to weeks 1-6)
+      base[rdlIdx] = { name:"Nordic curl negative (or lying hamstring curl)", sets:"3×6–8", rest:90, rpe:"6–7", phase:"Wks 1–6",
+        cues:["Anchor feet under rack or have a partner hold","Lower yourself as slowly as possible — 4–6s down","Catch yourself at the bottom, push back up with hands","Goal is controlling the negative — not the concentric","Week 7+: replaced by DB RDL for greater hamstring load","Timeline pushed back to allow mobility foundation to establish first"] };
+    } else if(week >= 9 && rdlIdx !== -1) {
+      // Week 9+ (was Week 5): barbell RDL
+      base[rdlIdx] = { ...base[rdlIdx], name:"Romanian deadlift (barbell)", phase:"Week 9+",
         cues:["Bar at hip crease, overhand or mixed grip","Hinge back, bar slides down thighs — keep it close","Lower until strong hamstring stretch, usually mid-shin","Drive hips forward to return, squeeze glutes at top","Heavier progressive overload than DBs — use it"] };
+    } else if(week >= 7 && rdlIdx !== -1) {
+      // Week 7-8: DB RDL returns
+      base[rdlIdx] = { ...base[rdlIdx], phase:"Week 7+",
+        cues:[...base[rdlIdx].cues,"DB version Weeks 7–8 — barbell takes over Week 9","Use this to relearn the hinge pattern before barbell loading"] };
     }
     const tdIdx = base.findIndex(e => e.name === "Trap bar deadlift");
-    if(week >= 7 && tdIdx !== -1) {
-      base[tdIdx] = { ...base[tdIdx], name:"Conventional deadlift", phase:"Week 7+",
+    if(week >= 11 && tdIdx !== -1) {
+      // Week 11+ (was Week 7): conventional deadlift
+      base[tdIdx] = { ...base[tdIdx], name:"Conventional deadlift", phase:"Week 11+",
         sets:"1×4–6 top set, then 3×6–8",
-        cues:["TOP SET FIRST: work up to a heavy 4–6 reps at RPE 8 — this is your strength work","Then drop 15–20% and do 3 working sets of 6–8 for hypertrophy","Conventional stance — hip width, toes slightly out","Bar over mid-foot, hinge to grip — back flat, chest up","Bar stays close to shins throughout the pull","Weeks 7–8: keep RPE 7 on top set while learning the pattern"] };
+        cues:["TOP SET FIRST: work up to a heavy 4–6 reps at RPE 8 — this is your strength work","Then drop 15–20% and do 3 working sets of 6–8 for hypertrophy","Conventional stance — hip width, toes slightly out","Bar over mid-foot, hinge to grip — back flat, chest up","Bar stays close to shins throughout the pull","Weeks 11–12: keep RPE 7 on top set while learning the pattern"] };
     }
     const zIdx = base.findIndex(e => e.name === "Zercher squat");
-    if(week >= 3 && zIdx !== -1) {
+    if(week >= 7 && zIdx !== -1) {
+      // Week 7+ (was Week 3): top set on Zercher
       base[zIdx] = { ...base[zIdx], sets:"1×4–6 top set, then 3×8–10",
-        cues:[...base[zIdx].cues,"From Week 3: one heavy top set of 4–6 reps at RPE 8 first, then drop weight for working sets","This top set is your strength stimulus — treat it seriously"] };
+        cues:[...base[zIdx].cues,"From Week 7: one heavy top set of 4–6 reps at RPE 8 first, then drop weight for working sets","This top set is your strength stimulus — treat it seriously"] };
     }
   }
   if(dayIdx === 4) { // Saturday Lower B
     const sqIdx = base.findIndex(e => e.name === "Heel-elevated back squat");
-    if(week >= 7 && sqIdx !== -1) {
+    if(week >= 11 && sqIdx !== -1) {
+      // Week 11+ (was Week 7): top set on heel-elevated squat
       base[sqIdx] = { ...base[sqIdx], phase:"Top set added",
-        sets: week >= 9 ? "1×4–6 top set, then 3×6–8" : "1×6–8 top set, then 3×8–10",
-        cues:[...base[sqIdx].cues,"From Week 7: add a top set before working sets — work up to a heavy set at RPE 8","Keep the heel elevation regardless of load — it protects your back","As ankle mobility improves over the cycle, you may need less elevation"] };
+        sets: week >= 13 ? "1×4–6 top set, then 3×6–8" : "1×6–8 top set, then 3×8–10",
+        cues:[...base[sqIdx].cues,"From Week 11: add a top set before working sets — work up to a heavy set at RPE 8","Keep the heel elevation regardless of load — it protects your back","As ankle mobility improves over the cycle, you may need less elevation"] };
     }
     const bssIdx = base.findIndex(e => e.name === "Bulgarian split squat (DB)");
-    if(week >= 3 && bssIdx !== -1) {
+    if(week >= 7 && bssIdx !== -1) {
+      // Week 7+ (was Week 3): top set on split squat
       base[bssIdx] = { ...base[bssIdx],
         sets:"1×6–8 top set, then 3×10 each",
-        cues:[...base[bssIdx].cues,"From Week 3: one heavier top set of 6–8 per leg before dropping to working weight"] };
+        cues:[...base[bssIdx].cues,"From Week 7: one heavier top set of 6–8 per leg before dropping to working weight"] };
     }
   }
   return base;
@@ -337,7 +346,7 @@ const DAYS = [
   { name:"Tuesday — Push", emoji:"🔥", bg:"#FAEEDA", sub:"Chest, shoulders, triceps", exercises:[
     {name:"Incline DB press",sets:"4×8–10",rest:120,rpe:"7–8",cues:["Bench at 30–45° — higher shifts load to shoulders","Elbows at 70° from torso, not 90°","Full chest stretch at bottom, brief pause","Drive up and slightly together — gentle arc"]},
     {name:"Low-to-high cable fly",sets:"3×12–15",rest:75,rpe:"7–8",cues:["Cable at ankle/floor level","Sweep upward and inward — like hugging a barrel","Hands meet at chest height, same elbow bend throughout","Pause and squeeze at top"]},
-    {name:"High-to-low cable fly",sets:"3×12–15",rest:75,rpe:"7–8",cues:["Cable at top pulley","Sweep downward and inward, hands meet at hip height","Pause at bottom — upper chest activation","Week 8+: superset with low-to-high, no rest between"]},
+    {name:"Kneeling ring fly",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Set rings at hip height initially (lower over weeks as you adapt)","Kneel facing forward, hands on rings, arms extended","Walk knees back to set difficulty — closer to vertical is easier, more horizontal is harder","Lower body forward by spreading rings out to your sides — small elbow bend (not straight arms)","Stretch is the entire point — let the rings drift apart as far as your shoulders comfortably allow","Pull rings back together with your chest, hands meet in front of your sternum","Weeks 1–2: stay upright, get comfortable with the movement, focus on chest stretch","Week 3+: walk knees back gradually to increase load","Stop the descent immediately if you feel any sharp shoulder sensation — this is a slow-progress movement"]},
     {name:"Seated DB shoulder press",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Neutral or semi-pronated grip","Drive straight overhead, DBs finish close together","Keep elbows at 70° — not flared to 90°"]},
     {name:"Cable lateral raise",sets:"3×15–20",rest:60,rpe:"6–7",cues:["Cable at ankle height, stand sideways","Lead with elbow — raise to shoulder height only","3s slow negative — where cables beat dumbbells"]},
     {name:"Cable tricep pushdown (rope)",sets:"4×12–15",rest:60,rpe:"7–8",cues:["Elbows pinned to sides — they must not move","Drive down and flare rope apart at bottom","Full lockout, squeeze 1s — lateral head activation"]},
@@ -429,12 +438,14 @@ let S = {
   sessionTimers:{}, // key: "w{week}_d{day}" -> { start, elapsed, active }
   sets:null, note:'',
   reminders:{ morning:false, evening:false, morningTime:'07:00', eveningTime:'21:00' },
+  mobilityLog:{}, // key: 'YYYY-MM-DD_morning' or '_evening' -> true
 };
 
 function save() {
   try { localStorage.setItem('tapp_v4', JSON.stringify({
     logs:S.logs, weights:S.weights, week:S.week,
-    reminders:S.reminders, sessionTimers:S.sessionTimers
+    reminders:S.reminders, sessionTimers:S.sessionTimers,
+    mobilityLog:S.mobilityLog
   })); } catch(e) {}
 }
 function load() {
@@ -445,6 +456,7 @@ function load() {
     if(d.week) S.week = d.week;
     if(d.reminders) S.reminders = { ...S.reminders, ...d.reminders };
     if(d.sessionTimers) S.sessionTimers = d.sessionTimers;
+    if(d.mobilityLog) S.mobilityLog = d.mobilityLog;
     const ph = JSON.parse(localStorage.getItem('tapp_photos') || '[]');
     S.photos = ph;
   } catch(e) {}
@@ -486,8 +498,8 @@ async function startRestTimer(seconds, exName) {
   restActive = true;
   restDoneFired = false;
   restEndTime = Date.now() + seconds * 1000;  // fixed target — real time keeps moving even if JS is throttled
-  document.getElementById('rest-ex-name').textContent = 'Rest after: ' + exName;
-  document.getElementById('rest-overlay').classList.remove('hidden');
+  document.getElementById('rest-ex-name').textContent = exName;
+  document.getElementById('rest-bar').classList.remove('hidden');
   updateRestArc(seconds, seconds);
   try { getAudio().resume(); } catch(e) {}
 
@@ -556,22 +568,30 @@ if('serviceWorker' in navigator) {
 function onRestDone() {
   playDone();
   if(navigator.vibrate) navigator.vibrate([300,100,300,100,500]);
-  setTimeout(() => document.getElementById('rest-overlay').classList.add('hidden'), 1200);
+  setTimeout(() => document.getElementById('rest-bar').classList.add('hidden'), 1200);
 }
 function updateRestArc(rem, total) {
   const disp = document.getElementById('rest-display');
   const arc = document.getElementById('rest-arc');
   if(disp) disp.textContent = rem;
-  if(arc) arc.style.strokeDashoffset = 527.79 * (1 - rem/total);
+  if(arc) arc.style.strokeDashoffset = 119.38 * (1 - rem/total);
+}
+function addRestTime(sec) {
+  if(!restActive) return;
+  restEndTime += sec * 1000;
+  restTotal += sec;
+  restDoneFired = false;
+  restActive = true;
+  tickRest();
 }
 function skipRest() {
   restActive = false; restDoneFired = true; stopRestDrivers(); stopSWTimer();
-  document.getElementById('rest-overlay').classList.add('hidden');
+  document.getElementById('rest-bar').classList.add('hidden');
   if(navigator.vibrate) navigator.vibrate(80);
 }
 function stopRest() {
   restActive = false; restDoneFired = true; stopRestDrivers(); stopSWTimer();
-  document.getElementById('rest-overlay').classList.add('hidden');
+  document.getElementById('rest-bar').classList.add('hidden');
 }
 async function stopSWTimer() {
   const reg = await navigator.serviceWorker?.ready;
@@ -812,7 +832,12 @@ function renderExLog(c) {
   const ex = exercises[S.ex];
   const lk = `w${S.week}_d${S.day}_e${S.ex}`;
   const existing = S.logs[lk];
-  const prev = S.week > 1 ? S.logs[`w${S.week-1}_d${S.day}_e${S.ex}`] : null;
+  // Find the most recent prior week that has data for this exact exercise slot
+  let prev = null, prevWeek = null;
+  for(let w = S.week - 1; w >= 1; w--) {
+    const candidate = S.logs[`w${w}_d${S.day}_e${S.ex}`];
+    if(candidate && candidate.sets && candidate.sets.length) { prev = candidate; prevWeek = w; break; }
+  }
   if(!S.sets) S.sets = existing ? existing.sets.map(s=>({...s})) : [{w:'',r:'',rpe:''}];
   if(S.note === undefined || S.note === null) S.note = existing?.note || '';
 
@@ -823,9 +848,18 @@ function renderExLog(c) {
   </div>`;
 
   if(prev) {
-    const pm = Math.max(...prev.sets.map(s=>parseFloat(s.w)||0));
-    h += `<div class="prev-box"><div class="prev-lbl">Week ${S.week-1} — beat this</div>
-    <div class="prev-val">Max: <strong>${pm} lbs</strong> · Sets: <strong>${prev.sets.length}</strong> · Reps: <strong>${prev.sets[0]?.r||'—'}</strong></div></div>`;
+    h += `<div class="prev-box"><div class="prev-lbl">Week ${prevWeek} — beat this</div>`;
+    h += `<div style="margin-top:6px;">`;
+    prev.sets.forEach((s, i) => {
+      const rpeTxt = s.rpe ? ` · RPE ${s.rpe}` : '';
+      h += `<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--blue-dk);padding:3px 0;${i<prev.sets.length-1?'border-bottom:0.5px solid rgba(24,95,165,0.15);':''}">
+        <span style="font-weight:500;">Set ${i+1}</span>
+        <span><strong>${s.w||'—'} lbs</strong> × ${s.r||'—'} reps${rpeTxt}</span>
+      </div>`;
+    });
+    h += `</div>`;
+    if(prev.note) h += `<div style="font-size:12px;color:var(--blue-dk);margin-top:6px;padding-top:6px;border-top:0.5px solid rgba(24,95,165,0.2);font-style:italic;">"${prev.note}"</div>`;
+    h += `</div>`;
   }
 
   h += `<div class="card cp" style="margin-bottom:10px;"><div style="font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Form cues</div>`;
@@ -851,9 +885,10 @@ function renderExLog(c) {
     </div>`;
   });
   h += `</div>
-    <div style="padding:10px 16px;border-top:0.5px solid var(--bdr2);display:flex;gap:8px;">
+    <div style="padding:10px 16px;border-top:0.5px solid var(--bdr2);display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn btn-s btn-sm" onclick="addSet()">+ Add set</button>
-      <button style="flex:1;background:var(--green-lt);color:var(--green);border:none;border-radius:var(--rs);padding:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;" onclick="startRestTimer(${ex.rest},'${ex.name.replace(/'/g,"\\'")}')">
+      ${prev ? `<button class="btn btn-s btn-sm" onclick="copyLastWeek()">⧉ Copy Wk ${prevWeek}</button>` : ''}
+      <button style="flex:1;min-width:140px;background:var(--green-lt);color:var(--green);border:none;border-radius:var(--rs);padding:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;" onclick="startRestTimer(${ex.rest},'${ex.name.replace(/'/g,"\\'")}')">
         ⏱ Rest timer (${ex.rest}s)
       </button>
     </div>
@@ -871,6 +906,17 @@ function renderExLog(c) {
 
 function addSet() { S.sets.push({w:'',r:'',rpe:''}); render(); }
 function delSet(i) { if(S.sets.length===1) return; S.sets.splice(i,1); render(); }
+function copyLastWeek() {
+  // Find most recent prior week with data for this slot and copy its sets in
+  for(let w = S.week - 1; w >= 1; w--) {
+    const c = S.logs[`w${w}_d${S.day}_e${S.ex}`];
+    if(c && c.sets && c.sets.length) {
+      S.sets = c.sets.map(s => ({ w:s.w, r:s.r, rpe:s.rpe }));
+      render();
+      return;
+    }
+  }
+}
 function saveEx() {
   const filled = S.sets.filter(s => s.w!==''||s.r!=='');
   if(!filled.length) { alert('Log at least one set.'); return; }
@@ -882,8 +928,39 @@ function saveEx() {
 function renderMobility(c) {
   const notifOk = Notification.permission === 'granted';
   const notifBlocked = Notification.permission === 'denied';
+  const today = todayKey();
+  const morningDone = !!S.mobilityLog[today + '_morning'];
+  const eveningDone = !!S.mobilityLog[today + '_evening'];
+  const morningStreak = calcStreak('morning');
+  const eveningStreak = calcStreak('evening');
 
   let h = `<div class="ph"><div class="pt">Mobility</div></div>`;
+
+  // Today's progress — check off when you've done each routine
+  h += `<div class="sl">Today</div>`;
+  h += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+    <button onclick="toggleMobilityDone('morning')" style="background:${morningDone?'var(--green)':'var(--card)'};border:0.5px solid ${morningDone?'var(--green)':'var(--bdr)'};border-radius:var(--r);padding:14px 12px;cursor:pointer;font-family:inherit;text-align:left;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${morningDone?'white':'var(--bdr)'};background:${morningDone?'white':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          ${morningDone?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':''}
+        </div>
+        <div style="font-size:13px;font-weight:600;color:${morningDone?'white':'var(--t)'};">🌅 Morning</div>
+      </div>
+      <div style="font-size:11px;color:${morningDone?'rgba(255,255,255,0.85)':'var(--t2)'};">${morningDone?'Done — streak: '+morningStreak+' day'+(morningStreak===1?'':'s'):'Tap when complete'}</div>
+    </button>
+    <button onclick="toggleMobilityDone('evening')" style="background:${eveningDone?'var(--purple)':'var(--card)'};border:0.5px solid ${eveningDone?'var(--purple)':'var(--bdr)'};border-radius:var(--r);padding:14px 12px;cursor:pointer;font-family:inherit;text-align:left;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${eveningDone?'white':'var(--bdr)'};background:${eveningDone?'white':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          ${eveningDone?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':''}
+        </div>
+        <div style="font-size:13px;font-weight:600;color:${eveningDone?'white':'var(--t)'};">🌙 Evening</div>
+      </div>
+      <div style="font-size:11px;color:${eveningDone?'rgba(255,255,255,0.85)':'var(--t2)'};">${eveningDone?'Done — streak: '+eveningStreak+' day'+(eveningStreak===1?'':'s'):'Tap when complete'}</div>
+    </button>
+  </div>`;
+
+  // 7-day visualization
+  h += renderMobilityWeekStrip();
 
   if(notifBlocked) {
     h += `<div class="notif-banner"><strong>Notifications are blocked</strong>
@@ -923,6 +1000,58 @@ function renderMobility(c) {
   h += `<div id="mob-m">${renderMobSection('morning')}</div>`;
   h += `<div id="mob-e" style="display:none;">${renderMobSection('evening')}</div>`;
   c.innerHTML = h;
+}
+
+function todayKey() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function toggleMobilityDone(which) {
+  const key = todayKey() + '_' + which;
+  S.mobilityLog[key] = !S.mobilityLog[key];
+  if(!S.mobilityLog[key]) delete S.mobilityLog[key];
+  save();
+  renderMobility(document.getElementById('content'));
+}
+
+function calcStreak(which) {
+  let streak = 0;
+  for(let i = 0; i < 365; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const k = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') + '_' + which;
+    if(S.mobilityLog[k]) streak++;
+    else if(i > 0) break; // allow today to be incomplete without breaking streak
+  }
+  return streak;
+}
+
+function renderMobilityWeekStrip() {
+  let h = `<div class="card" style="padding:10px 14px;margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Last 7 days</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">`;
+  for(let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dayKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    const m = !!S.mobilityLog[dayKey + '_morning'];
+    const e = !!S.mobilityLog[dayKey + '_evening'];
+    const isToday = i === 0;
+    const label = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+    h += `<div style="text-align:center;">
+      <div style="font-size:10px;color:${isToday?'var(--blue)':'var(--t3)'};font-weight:${isToday?'600':'400'};margin-bottom:3px;">${label}</div>
+      <div style="height:8px;border-radius:2px;background:${m?'var(--green)':'var(--surf)'};margin-bottom:2px;"></div>
+      <div style="height:8px;border-radius:2px;background:${e?'var(--purple)':'var(--surf)'};"></div>
+    </div>`;
+  }
+  h += `</div>
+    <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--t2);">
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--green);border-radius:2px;"></span>Morning</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--purple);border-radius:2px;"></span>Evening</span>
+    </div>
+  </div>`;
+  return h;
 }
 
 function renderMobSection(which) {
@@ -1194,7 +1323,7 @@ function deletePhoto(idx){
 // ── TOOLS ─────────────────────────────────────────────────────────────────────
 function renderTools(c){
   let h=`<div class="ph"><div class="pt">Tools</div></div>`;
-  h+=`<div class="tabs"><button class="tab active" onclick="tTab('1rm',this)">1RM</button><button class="tab" onclick="tTab('plate',this)">Plates</button><button class="tab" onclick="tTab('prog',this)">Map</button><button class="tab" onclick="tTab('backup',this)">Backup</button></div>`;
+  h+=`<div class="tabs" style="overflow-x:auto;flex-wrap:nowrap;"><button class="tab active" onclick="tTab('1rm',this)">1RM</button><button class="tab" onclick="tTab('plate',this)">Plates</button><button class="tab" onclick="tTab('prog',this)">Map</button><button class="tab" onclick="tTab('meals',this)">Meals</button><button class="tab" onclick="tTab('backup',this)">Backup</button></div>`;
 
   h+=`<div id="tt-1rm"><div class="sl">Estimate your 1 rep max</div><div class="card cp">
     <div class="r2">
@@ -1236,6 +1365,9 @@ function renderTools(c){
   });
   h+=`</div>`;
 
+  // Meal plan
+  h+=`<div id="tt-meals" style="display:none;">${renderMealsHTML()}</div>`;
+
   // Backup & Restore
   h+=`<div id="tt-backup" style="display:none;">
     <div class="sl">Backup your data</div>
@@ -1259,7 +1391,190 @@ function renderTools(c){
 
 function tTab(t,btn){
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  ['1rm','plate','prog','backup'].forEach(id=>document.getElementById(`tt-${id}`).style.display=id===t?'':'none');
+  ['1rm','plate','prog','meals','backup'].forEach(id=>document.getElementById(`tt-${id}`).style.display=id===t?'':'none');
+}
+
+const MEALS = {
+  targets: { cal:2150, p:180, c:215, f:65 },
+  principle: "Same simple meals on repeat with variety across the week. 3 days poultry, 2 days fish (omega-3s), 2 days plant-forward (fiber + gut diversity). Zero red meat. Built for low-effort cooking.",
+  days: [
+    { day:"Monday", subtitle:"Poultry day — Upper A", icon:"🍗", color:"#185FA5",
+      meals:[
+        { time:"~7am", emoji:"🌅", name:"Whey shake + PB toast", cal:520, p:60, c:55, f:14,
+          items:["Whey protein, 2 scoops","Banana, 1 medium","Unsweetened soy milk, 8 oz","Whole grain toast, 2 slices","Peanut butter, 1 tbsp"] },
+        { time:"~12pm", emoji:"🥗", name:"Chicken & rice bowl", cal:560, p:50, c:55, f:16,
+          items:["Chicken breast (cooked), 6 oz","Jasmine rice (cooked), 1 cup","Frozen vegetables, 1.5 cups","Olive oil, 1 tbsp","Soy sauce / seasoning to taste"] },
+        { time:"~3pm", emoji:"🍌", name:"Pre-workout snack", cal:370, p:33, c:35, f:17,
+          items:["Whey protein, 1 scoop (in water)","Banana, 1 medium","Peanut butter, 2 tbsp"] },
+        { time:"~7pm", emoji:"🍗", name:"Turkey & potato plate", cal:700, p:50, c:70, f:22,
+          items:["Ground turkey (93/7, cooked), 7 oz","Baked potato or sweet potato, 1 large","Berries, 1 cup","Mixed salad, 2 cups","Olive oil + vinegar, 1.5 tbsp"] },
+      ] },
+    { day:"Tuesday", subtitle:"Fish day — Push", icon:"🐟", color:"#0F6E56",
+      note:"Salmon delivers ~2g EPA/DHA omega-3s — research backs these for reduced inflammation and joint health (relevant for your back).",
+      meals:[
+        { time:"~7am", emoji:"🌅", name:"Whey shake + PB toast", cal:520, p:60, c:55, f:14,
+          items:["Same as Monday breakfast"] },
+        { time:"~12pm", emoji:"🥗", name:"Tuna rice bowl", cal:560, p:50, c:55, f:16,
+          items:["Tuna (canned in water), 1 can drained","Rice (cooked), 1 cup","Mixed vegetables, 1 cup","Olive oil, 1 tbsp","Hard-boiled egg, 1 (for protein)","Lemon juice + everything bagel seasoning"] },
+        { time:"~3pm", emoji:"🍌", name:"Pre-workout snack", cal:370, p:33, c:35, f:17,
+          items:["Same as Monday"] },
+        { time:"~7pm", emoji:"🐟", name:"Salmon plate", cal:700, p:50, c:70, f:22,
+          items:["Salmon, 6 oz (pan-seared 4 min/side)","Sweet potato, 1 large","Roasted broccoli, 2 cups","Olive oil for roasting, 1 tsp","Berries, 1 cup"] },
+      ] },
+    { day:"Wednesday", subtitle:"Poultry day — Lower A", icon:"🍗", color:"#185FA5",
+      note:"Consider adding 1 tsp creatine to pre-workout shake. Research-backed for strength and lean mass; no downside.",
+      meals:[
+        { time:"~7am", emoji:"🌅", name:"Whey shake + PB toast", cal:520, p:60, c:55, f:14,
+          items:["Same as Monday breakfast"] },
+        { time:"~12pm", emoji:"🌯", name:"Turkey wrap", cal:560, p:50, c:55, f:16,
+          items:["Whole wheat tortilla, large (10-inch)","Deli turkey breast, 6 oz","Cheddar cheese, 1 slice","Lettuce, tomato, mustard","Grapes, 1 cup on the side"] },
+        { time:"~3pm", emoji:"🍌", name:"Pre-workout snack", cal:370, p:33, c:35, f:17,
+          items:["Same as Monday"] },
+        { time:"~7pm", emoji:"🍗", name:"Chicken thigh plate", cal:700, p:50, c:70, f:22,
+          items:["Boneless chicken thigh (skin off), 6 oz","Rice (cooked), 1 cup","Roasted vegetables, 2 cups","Mixed berries, 1 cup"] },
+      ] },
+    { day:"Thursday", subtitle:"Plant-forward — Cardio/recovery", icon:"🌱", color:"#534AB7",
+      note:"Lentils and tofu deliver 16g+ fiber, polyphenols, and prebiotics for gut microbiome diversity. Slightly lower protein on non-lifting days is appropriate.",
+      meals:[
+        { time:"~7am", emoji:"🍳", name:"Egg + oat bowl", cal:520, p:38, c:55, f:17,
+          items:["Whole eggs, 3","Egg whites, 2","Cooked oats, ¾ cup","Berries, ½ cup","Cinnamon"] },
+        { time:"~12pm", emoji:"🥗", name:"Lentil bowl", cal:560, p:28, c:80, f:14,
+          items:["Cooked lentils, 1 cup","Rice (cooked), ¾ cup","Roasted vegetables, 1 cup","Olive oil, 1 tbsp","Greek yogurt, 2 tbsp as topping","Lemon juice"] },
+        { time:"~3pm", emoji:"🥄", name:"Pre-cardio snack", cal:280, p:25, c:35, f:6,
+          items:["2% Greek yogurt, 1 cup","Honey, 1 tbsp","Berries, ½ cup","Chopped almonds, 1 tbsp"] },
+        { time:"~7pm", emoji:"🍲", name:"Tofu stir-fry + shake", cal:790, p:64, c:55, f:28,
+          items:["Firm tofu (pressed, cubed), 8 oz","Rice (cooked), 1 cup","Stir-fry vegetables, 2 cups","Olive oil, 1.5 tbsp","Soy sauce, ginger, garlic","Whey protein, 1 scoop on the side"] },
+      ] },
+    { day:"Friday", subtitle:"Poultry day — Upper B", icon:"🍗", color:"#185FA5",
+      meals:[
+        { time:"~7am", emoji:"🌅", name:"Whey shake + PB toast", cal:520, p:60, c:55, f:14,
+          items:["Same as Monday breakfast"] },
+        { time:"~12pm", emoji:"🥗", name:"Chicken & rice bowl", cal:560, p:50, c:55, f:16,
+          items:["Same as Monday lunch"] },
+        { time:"~3pm", emoji:"🍌", name:"Pre-workout snack", cal:370, p:33, c:35, f:17,
+          items:["Same as Monday"] },
+        { time:"~7pm", emoji:"🌮", name:"Chicken fajita bowl", cal:700, p:50, c:70, f:22,
+          items:["Chicken breast (sliced, fajita-seasoned), 6 oz","Rice (cooked), 1 cup","Black beans, ½ cup","Peppers + onions, 2 cups","Avocado, ¼","Salsa, 2 tbsp"] },
+      ] },
+    { day:"Saturday", subtitle:"Fish day — Lower B", icon:"🐟", color:"#0F6E56",
+      note:"Stacked with Tuesday this hits ~4g EPA/DHA weekly — the threshold where strongest research benefits appear.",
+      meals:[
+        { time:"~7am", emoji:"🌅", name:"Whey shake + PB toast", cal:520, p:60, c:55, f:14,
+          items:["Same as Monday breakfast"] },
+        { time:"~12pm", emoji:"🐟", name:"Sardines & rice", cal:560, p:48, c:55, f:22,
+          items:["Sardines (in olive oil, drained), 1 can","Rice (cooked), 1 cup","Cucumber + tomato salad","Olive oil + lemon vinaigrette, 1 tbsp","Whey protein, 1 scoop on the side"] },
+        { time:"~3pm", emoji:"🍌", name:"Pre-workout snack", cal:370, p:33, c:35, f:17,
+          items:["Same as Monday"] },
+        { time:"~7pm", emoji:"🐟", name:"Salmon plate", cal:700, p:50, c:70, f:22,
+          items:["Salmon, 6 oz","Sweet potato, 1 large","Roasted vegetables, 2 cups","Berries, 1 cup"] },
+      ] },
+    { day:"Sunday", subtitle:"Plant-forward — Full rest", icon:"🌱", color:"#534AB7",
+      meals:[
+        { time:"~8am", emoji:"🍳", name:"Egg + oat bowl", cal:520, p:38, c:55, f:17,
+          items:["Same as Thursday breakfast"] },
+        { time:"~12pm", emoji:"🥗", name:"Chickpea bowl", cal:560, p:22, c:75, f:18,
+          items:["Chickpeas (canned, drained), 1 cup","Quinoa (cooked), ¾ cup","Roasted vegetables, 1 cup","Tahini, 1.5 tbsp","Lemon, parsley"] },
+        { time:"~3pm", emoji:"🥄", name:"Cottage cheese + fruit", cal:280, p:30, c:25, f:8,
+          items:["2% cottage cheese, 1 cup","Pineapple or berries, 1 cup","Slivered almonds, 1 tbsp"] },
+        { time:"~7pm", emoji:"🍲", name:"Black bean bowl + shake", cal:790, p:60, c:75, f:22,
+          items:["Black beans, 1 cup","Sweet potato, 1 large","Roasted vegetables, 2 cups","Olive oil, 1 tbsp","Avocado, ¼","Greek yogurt, 2 tbsp","Whey protein, 1 scoop on the side"] },
+      ] },
+  ],
+  notes: [
+    { title:"Sunday prep saves the week", body:"Cook 4 days of chicken at once. Hard-boil 6 eggs. Bake 3 sweet potatoes. Rice and quinoa can be batch-cooked. About 90 minutes of Sunday work eliminates 80% of weekday cooking." },
+    { title:"Supplements worth adding", body:"Creatine monohydrate 5g daily (strongest evidence base of any supplement). Vitamin D3 2000 IU if you don't get regular sun. Omega-3 capsule (1g EPA+DHA) on non-fish days. Skip everything else marketed at lifters." },
+    { title:"Track for 2 weeks, then stop", body:"Use MyFitnessPal or a kitchen scale for the first two weeks to calibrate your eye. After that you'll know what 6 oz of chicken looks like and you can stop logging. Lifelong tracking isn't sustainable or necessary." },
+    { title:"Two free days per week is fine", body:"You don't need to hit these exact numbers every day. Hitting them Monday-Friday and being reasonable on weekends works for most people. What kills fat loss isn't one big meal — it's chronic overshooting day after day." },
+    { title:"The scale will lie", body:"Water weight fluctuates significantly day to day. Real fat loss shows up over a 2-3 week rolling average. Take weekly averages instead of obsessing over daily readings." },
+    { title:"If progress stalls after 3 weeks", body:"Reduce calories by 150 (not 500). Aggressive cuts trigger metabolic adaptation and make you feel terrible. Small, slow adjustments work better long-term." },
+    { title:"Honest caveat", body:"This plan is built on solid research for healthy adults (Helms, Aragon, Schoenfeld, Trexler), but I'm not a registered dietitian. If you have any medical conditions or work with a healthcare provider, run this past them." },
+  ],
+};
+
+function renderMealsHTML() {
+  let h = `<div class="sl">Daily targets</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px;">
+    <div class="ps-card"><div class="ps-val" style="color:var(--blue);">${MEALS.targets.cal}</div><div class="ps-lbl">calories</div></div>
+    <div class="ps-card"><div class="ps-val" style="color:var(--green);">${MEALS.targets.p}g</div><div class="ps-lbl">protein</div></div>
+    <div class="ps-card"><div class="ps-val" style="color:var(--amber);">${MEALS.targets.c}g</div><div class="ps-lbl">carbs</div></div>
+    <div class="ps-card"><div class="ps-val" style="color:var(--purple);">${MEALS.targets.f}g</div><div class="ps-lbl">fat</div></div>
+  </div>
+  <div style="background:var(--surf);border-radius:var(--rs);padding:12px 14px;font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px;">${MEALS.principle}</div>`;
+
+  h += `<div class="sl">Day picker</div>
+  <div class="wpills" id="meal-day-pills">`;
+  MEALS.days.forEach((d, i) => {
+    h += `<button class="wp${i===0?' active':''}" onclick="showMealDay(${i})" id="mday-${i}">${d.day.substring(0,3)}</button>`;
+  });
+  h += `</div>`;
+
+  h += `<div id="meal-day-content">${renderMealDay(0)}</div>`;
+
+  h += `<div class="sl">Implementation notes</div>`;
+  MEALS.notes.forEach(n => {
+    h += `<div class="card cp" style="margin-bottom:8px;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px;">${n.title}</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.55;">${n.body}</div>
+    </div>`;
+  });
+  return h;
+}
+
+function showMealDay(idx) {
+  document.querySelectorAll('#meal-day-pills .wp').forEach(p => p.classList.remove('active'));
+  document.getElementById(`mday-${idx}`)?.classList.add('active');
+  document.getElementById('meal-day-content').innerHTML = renderMealDay(idx);
+}
+
+function renderMealDay(idx) {
+  const day = MEALS.days[idx];
+  let totalCal = 0, totalP = 0, totalC = 0, totalF = 0;
+  day.meals.forEach(m => { totalCal+=m.cal; totalP+=m.p; totalC+=m.c; totalF+=m.f; });
+
+  let h = `<div class="card" style="border-left:3px solid ${day.color};margin-bottom:10px;">
+    <div style="padding:12px 14px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:22px;">${day.icon}</span>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;">${day.day}</div>
+        <div style="font-size:12px;color:var(--t2);">${day.subtitle}</div>
+      </div>
+    </div>
+  </div>`;
+
+  if(day.note) {
+    h += `<div class="nb"><div class="nt"><strong>Note:</strong> ${day.note}</div></div>`;
+  }
+
+  day.meals.forEach(m => {
+    h += `<div class="card" style="margin-bottom:10px;">
+      <div style="padding:12px 14px;border-bottom:0.5px solid var(--bdr2);display:flex;align-items:center;gap:10px;">
+        <span style="font-size:18px;">${m.emoji}</span>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:500;">${m.name}</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:1px;">${m.time} · ${m.cal} cal</div>
+        </div>
+      </div>
+      <div style="padding:10px 14px;">`;
+    m.items.forEach(item => {
+      h += `<div style="font-size:12px;color:var(--t2);padding:3px 0;line-height:1.45;">· ${item}</div>`;
+    });
+    h += `<div style="display:flex;gap:10px;margin-top:8px;padding-top:8px;border-top:0.5px solid var(--bdr2);font-size:11px;color:var(--t2);">
+      <span><strong style="color:var(--green);">P:</strong> ${m.p}g</span>
+      <span><strong style="color:var(--amber);">C:</strong> ${m.c}g</span>
+      <span><strong style="color:var(--purple);">F:</strong> ${m.f}g</span>
+    </div></div></div>`;
+  });
+
+  h += `<div class="card cp" style="background:${day.color}18;border-color:${day.color}40;margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:600;color:${day.color};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Daily total</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:12px;">
+      <div><strong style="font-size:15px;">${totalCal}</strong><div style="font-size:10px;color:var(--t2);">cal</div></div>
+      <div><strong style="font-size:15px;color:var(--green);">${totalP}g</strong><div style="font-size:10px;color:var(--t2);">protein</div></div>
+      <div><strong style="font-size:15px;color:var(--amber);">${totalC}g</strong><div style="font-size:10px;color:var(--t2);">carbs</div></div>
+      <div><strong style="font-size:15px;color:var(--purple);">${totalF}g</strong><div style="font-size:10px;color:var(--t2);">fat</div></div>
+    </div>
+  </div>`;
+  return h;
 }
 
 function exportData(){
@@ -1271,6 +1586,7 @@ function exportData(){
     week: S.week,
     reminders: S.reminders,
     sessionTimers: S.sessionTimers,
+    mobilityLog: S.mobilityLog,
     photos: S.photos,
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
@@ -1297,6 +1613,7 @@ function importData(input){
       if(data.week) S.week = data.week;
       if(data.reminders) S.reminders = { ...S.reminders, ...data.reminders };
       if(data.sessionTimers) S.sessionTimers = data.sessionTimers;
+      if(data.mobilityLog) S.mobilityLog = data.mobilityLog;
       if(data.photos) { S.photos = data.photos; try{localStorage.setItem('tapp_photos',JSON.stringify(S.photos));}catch(err){} }
       save();
       alert('Data restored successfully!');
