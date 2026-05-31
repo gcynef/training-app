@@ -398,9 +398,10 @@ const MOBILITY = {
       {name:"Weighted deep squat heel-down hold",time:"2×30s",desc:"Hold light weight at chest, sink into deep squat, actively drive heels into floor and knees out. Keep heels flat the whole time.",why:"Loaded ankle and hip stretch under tension — builds usable end-range mobility, not just passive flexibility"},
       {name:"Calf & soleus stretch",time:"2×30s each",desc:"Straight back leg against wall (calf/gastroc), then bent back knee (soleus). Heel stays down. Both positions, both legs.",why:"Tight calves restrict dorsiflexion — the soleus especially limits the knee-forward range needed for upright squatting"},
     ]},
-    {section:"Hip & Thoracic Flow (8 min)",items:[
+    {section:"Hip & Thoracic Flow (9 min)",items:[
       {name:"90/90 hip stretch",time:"2×60s",desc:"Sit with front and back leg at 90°. Lean gently over front shin. Switch sides. Tall spine throughout.",why:"Tight hips are a primary driver of low back pain"},
       {name:"Couch stretch",time:"2×45s",desc:"Rear foot elevated on wall or bench, front leg at 90°. Squeeze glute, tilt pelvis forward. Critical for desk workers.",why:"Hip flexor length — main driver of anterior pelvic tilt and low back pain"},
+      {name:"Cossack squat (bodyweight)",time:"6 reps each side",desc:"Wide stance, toes pointed slightly out. Shift weight to one side and sink into a deep lateral squat — opposite leg straight with toes up. Keep chest tall, drive that side's knee out. Push through the heel to return through center. Switch sides. Move slowly and controlled.",why:"Frontal-plane hip mobility — most lifting is sagittal plane only. Trains adductor and inner-thigh flexibility under load, builds lateral hip strength that prevents back compensation."},
       {name:"Thoracic rotation on foam roller",time:"10 reps",desc:"Roller perpendicular at mid-back. Arms crossed. Rotate side to side slowly. 3 positions along T-spine.",why:"T-spine mobility offloads lumbar spine"},
       {name:"World's greatest stretch",time:"10 reps",desc:"Lunge forward, hand inside front foot, rotate and reach up. Alternate sides.",why:"Hip flexor, t-spine, hip rotator, hamstring — all in one"},
       {name:"Deep squat hold",time:"2×30s",desc:"Hold rack at bottom squat. Elbows push knees out. Breathe deeply. Heels down if possible.",why:"Ankle, hip, and thoracic mobility — aging well requires floor movement"},
@@ -439,13 +440,14 @@ let S = {
   sets:null, note:'',
   reminders:{ morning:false, evening:false, morningTime:'07:00', eveningTime:'21:00' },
   mobilityLog:{}, // key: 'YYYY-MM-DD_morning' or '_evening' -> true
+  dietLog:{}, // key: 'YYYY-MM-DD' -> 'yes' | 'mostly' | 'no'
 };
 
 function save() {
   try { localStorage.setItem('tapp_v4', JSON.stringify({
     logs:S.logs, weights:S.weights, week:S.week,
     reminders:S.reminders, sessionTimers:S.sessionTimers,
-    mobilityLog:S.mobilityLog
+    mobilityLog:S.mobilityLog, dietLog:S.dietLog
   })); } catch(e) {}
 }
 function load() {
@@ -457,6 +459,7 @@ function load() {
     if(d.reminders) S.reminders = { ...S.reminders, ...d.reminders };
     if(d.sessionTimers) S.sessionTimers = d.sessionTimers;
     if(d.mobilityLog) S.mobilityLog = d.mobilityLog;
+    if(d.dietLog) S.dietLog = d.dietLog;
     const ph = JSON.parse(localStorage.getItem('tapp_photos') || '[]');
     S.photos = ph;
   } catch(e) {}
@@ -705,6 +708,51 @@ function renderWorkout(c) {
     ${phase.newMoves.length ? `<div style="font-size:11px;color:${phase.color};margin-top:5px;font-weight:500;">New this phase: ${phase.newMoves.slice(0,2).join(' · ')}</div>` : ''}
   </div>`;
 
+  // Today's status — accountability at a glance
+  const today = todayKey();
+  const mDone = !!S.mobilityLog[today + '_morning'];
+  const eDone = !!S.mobilityLog[today + '_evening'];
+  const trainedToday = Object.keys(S.logs).some(k => {
+    const log = S.logs[k];
+    if(!log?.ts) return false;
+    const logDate = new Date(log.ts);
+    return logDate.toDateString() === new Date().toDateString();
+  });
+  const diet = S.dietLog[today] || null;
+
+  h += `<div class="sl">Today</div>
+  <div class="card" style="margin-bottom:14px;">
+    <div style="padding:12px 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+      <div style="text-align:center;">
+        <div style="width:36px;height:36px;border-radius:50%;background:${mDone?'var(--green)':'var(--surf)'};border:2px solid ${mDone?'var(--green)':'var(--bdr)'};display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">
+          ${mDone?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'<span style="font-size:14px;">🌅</span>'}
+        </div>
+        <div style="font-size:10px;color:${mDone?'var(--green)':'var(--t3)'};font-weight:600;">MORNING</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:36px;height:36px;border-radius:50%;background:${trainedToday?'var(--blue)':'var(--surf)'};border:2px solid ${trainedToday?'var(--blue)':'var(--bdr)'};display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">
+          ${trainedToday?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'<span style="font-size:14px;">💪</span>'}
+        </div>
+        <div style="font-size:10px;color:${trainedToday?'var(--blue)':'var(--t3)'};font-weight:600;">TRAIN</div>
+      </div>
+      <div style="text-align:center;cursor:pointer;" onclick="cycleDiet()">
+        <div style="width:36px;height:36px;border-radius:50%;background:${diet==='yes'?'var(--green)':diet==='mostly'?'var(--amber)':diet==='no'?'var(--red)':'var(--surf)'};border:2px solid ${diet==='yes'?'var(--green)':diet==='mostly'?'var(--amber)':diet==='no'?'var(--red)':'var(--bdr)'};display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">
+          ${diet==='yes'?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':diet==='mostly'?'<span style="color:white;font-weight:700;font-size:16px;">~</span>':diet==='no'?'<span style="color:white;font-weight:700;font-size:16px;">✕</span>':'<span style="font-size:14px;">🍽</span>'}
+        </div>
+        <div style="font-size:10px;color:${diet?(diet==='yes'?'var(--green)':diet==='mostly'?'var(--amber)':'var(--red)'):'var(--t3)'};font-weight:600;">DIET</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:36px;height:36px;border-radius:50%;background:${eDone?'var(--purple)':'var(--surf)'};border:2px solid ${eDone?'var(--purple)':'var(--bdr)'};display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">
+          ${eDone?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'<span style="font-size:14px;">🌙</span>'}
+        </div>
+        <div style="font-size:10px;color:${eDone?'var(--purple)':'var(--t3)'};font-weight:600;">EVENING</div>
+      </div>
+    </div>
+    <div style="padding:8px 14px;border-top:0.5px solid var(--bdr2);font-size:11px;color:var(--t3);text-align:center;">
+      Tap the 🍽 icon to log diet — yes / mostly / no
+    </div>
+  </div>`;
+
   h += `<div class="sl">Select training day</div><div class="card">`;
   DAYS.forEach((d, i) => {
     const logged = Object.keys(S.logs).filter(k => k.startsWith(`w${S.week}_d${i}`)).length;
@@ -862,6 +910,18 @@ function renderExLog(c) {
     h += `</div>`;
   }
 
+  // Overload analysis — compare current logged session (if any) vs prev
+  if(existing && prev) {
+    const analysis = analyzeOverload(prev.sets, existing.sets);
+    const colorMap = { progressing:'var(--green)', stalled:'var(--amber)', regressed:'var(--red)' };
+    const labelMap = { progressing:'PROGRESSING', stalled:'STALLED', regressed:'REGRESSED' };
+    const bgMap = { progressing:'var(--green-lt)', stalled:'var(--amber-lt)', regressed:'var(--red-lt)' };
+    h += `<div style="background:${bgMap[analysis.status]};border-radius:var(--rs);padding:10px 12px;margin-bottom:10px;">
+      <div style="font-size:11px;font-weight:700;color:${colorMap[analysis.status]};letter-spacing:0.5px;margin-bottom:4px;">${labelMap[analysis.status]}</div>
+      <div style="font-size:12px;color:var(--t);line-height:1.5;">${analysis.message}</div>
+    </div>`;
+  }
+
   h += `<div class="card cp" style="margin-bottom:10px;"><div style="font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Form cues</div>`;
   ex.cues.forEach(cu => { h += `<div style="font-size:12px;color:var(--t2);padding:3px 0;line-height:1.5;">· ${cu}</div>`; });
   h += `</div>`;
@@ -922,6 +982,38 @@ function saveEx() {
   if(!filled.length) { alert('Log at least one set.'); return; }
   S.logs[`w${S.week}_d${S.day}_e${S.ex}`] = { sets:S.sets, note:S.note, ts:Date.now() };
   save(); S.ex=null; S.sets=null; S.note=''; render();
+}
+
+// Compare current session sets vs previous session sets — returns { status, message }
+function analyzeOverload(prevSets, curSets) {
+  const prevVol = prevSets.reduce((sum, s) => sum + (parseFloat(s.w)||0) * (parseInt(s.r)||0), 0);
+  const curVol = curSets.reduce((sum, s) => sum + (parseFloat(s.w)||0) * (parseInt(s.r)||0), 0);
+  const prevMaxW = Math.max(...prevSets.map(s => parseFloat(s.w)||0));
+  const curMaxW = Math.max(...curSets.map(s => parseFloat(s.w)||0));
+  const prevTotalReps = prevSets.reduce((s, x) => s + (parseInt(x.r)||0), 0);
+  const curTotalReps = curSets.reduce((s, x) => s + (parseInt(x.r)||0), 0);
+
+  const volDeltaPct = prevVol ? ((curVol - prevVol) / prevVol) * 100 : 0;
+  const wDelta = curMaxW - prevMaxW;
+  const repDelta = curTotalReps - prevTotalReps;
+
+  if(volDeltaPct >= 2.5 || wDelta >= 2.5 || (wDelta === 0 && repDelta >= 2)) {
+    let msg = `Total volume ${volDeltaPct>=0?'+':''}${volDeltaPct.toFixed(1)}%.`;
+    if(wDelta > 0) msg += ` Max weight up ${wDelta} lbs.`;
+    if(repDelta > 0 && wDelta === 0) msg += ` Same weight, +${repDelta} reps total.`;
+    msg += ` Keep this trajectory — try to add weight or 1–2 reps next session.`;
+    return { status:'progressing', message:msg };
+  }
+  if(volDeltaPct <= -5 || repDelta <= -3) {
+    let msg = `Total volume ${volDeltaPct.toFixed(1)}%.`;
+    if(repDelta < 0) msg += ` ${Math.abs(repDelta)} fewer reps than last time.`;
+    msg += ` Could be recovery, sleep, or stress. If it persists 2+ sessions, consider deloading this lift or reviewing RPE.`;
+    return { status:'regressed', message:msg };
+  }
+  let msg = `Total volume ${volDeltaPct>=0?'+':''}${volDeltaPct.toFixed(1)}% — essentially flat.`;
+  if(wDelta === 0 && repDelta === 0) msg += ` Same weight, same reps as last session.`;
+  msg += ` Consider adding 2.5–5 lbs or pushing for 1 more rep next time.`;
+  return { status:'stalled', message:msg };
 }
 
 // ── MOBILITY ──────────────────────────────────────────────────────────────────
@@ -1013,6 +1105,19 @@ function toggleMobilityDone(which) {
   if(!S.mobilityLog[key]) delete S.mobilityLog[key];
   save();
   renderMobility(document.getElementById('content'));
+}
+
+function cycleDiet() {
+  const today = todayKey();
+  const current = S.dietLog[today];
+  // Cycle: null -> yes -> mostly -> no -> null
+  const next = current === undefined || current === null ? 'yes' :
+               current === 'yes' ? 'mostly' :
+               current === 'mostly' ? 'no' : null;
+  if(next === null) delete S.dietLog[today];
+  else S.dietLog[today] = next;
+  save();
+  render();
 }
 
 function calcStreak(which) {
@@ -1180,7 +1285,7 @@ function togH(gk) {
 // ── PROGRESS ──────────────────────────────────────────────────────────────────
 function renderProgress(c) {
   let h = `<div class="ph"><div class="pt">Progress</div></div>`;
-  h += `<div class="tabs"><button class="tab active" onclick="pTab('bw',this)">Body weight</button><button class="tab" onclick="pTab('lifts',this)">Lifts</button><button class="tab" onclick="pTab('photos',this)">Photos</button></div>`;
+  h += `<div class="tabs"><button class="tab active" onclick="pTab('bw',this)">Weight</button><button class="tab" onclick="pTab('lifts',this)">Lifts</button><button class="tab" onclick="pTab('compliance',this)">Habits</button><button class="tab" onclick="pTab('photos',this)">Photos</button></div>`;
 
   const ws = [...S.weights].sort((a,b)=>a.date.localeCompare(b.date));
   h += `<div id="pt-bw">`;
@@ -1210,6 +1315,7 @@ function renderProgress(c) {
   [...new Set(DAYS.flatMap(d=>d.exercises.map(e=>e.name)))].forEach(n=>{h+=`<option value="${n}">${n}</option>`;});
   h+=`</select></div><div id="lift-area"><div class="empty"><svg viewBox="0 0 24 24"><path d="M3 17l4-8 4 4 4-6 4 5"/></svg><p>Select an exercise</p></div></div></div>`;
 
+  h+=`<div id="pt-compliance" style="display:none;">${renderComplianceHTML()}</div>`;
   h+=`<div id="pt-photos" style="display:none;">${renderPhotosHTML()}</div>`;
 
   c.innerHTML = h;
@@ -1221,7 +1327,89 @@ function renderProgress(c) {
 
 function pTab(t, btn) {
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-  ['bw','lifts','photos'].forEach(id=>document.getElementById(`pt-${id}`).style.display=id===t?'':'none');
+  ['bw','lifts','compliance','photos'].forEach(id=>document.getElementById(`pt-${id}`).style.display=id===t?'':'none');
+}
+
+function renderComplianceHTML() {
+  // Aggregate the last 4 weeks of daily completion
+  const weeks = [];
+  for(let w = 0; w < 4; w++) {
+    const weekData = { label:w===0?'This week':`${w} wk ago`, morning:0, evening:0, trained:0, dietYes:0, dietMostly:0, dietNo:0, days:0 };
+    for(let d = 0; d < 7; d++) {
+      const dt = new Date();
+      dt.setDate(dt.getDate() - (w * 7 + d));
+      const k = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+      // Don't count future days in the current week
+      if(dt > new Date()) continue;
+      weekData.days++;
+      if(S.mobilityLog[k+'_morning']) weekData.morning++;
+      if(S.mobilityLog[k+'_evening']) weekData.evening++;
+      if(S.dietLog[k] === 'yes') weekData.dietYes++;
+      else if(S.dietLog[k] === 'mostly') weekData.dietMostly++;
+      else if(S.dietLog[k] === 'no') weekData.dietNo++;
+      // Did they train this day?
+      const dayTrained = Object.values(S.logs).some(log => {
+        if(!log?.ts) return false;
+        return new Date(log.ts).toDateString() === dt.toDateString();
+      });
+      if(dayTrained) weekData.trained++;
+    }
+    weeks.push(weekData);
+  }
+
+  let h = `<div class="sl">Weekly habit summary</div>
+  <div style="background:var(--surf);border-radius:var(--rs);padding:12px 14px;font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:14px;">
+    Visibility, not enforcement. The point is to see your patterns over time — not to feel guilty about a missed day. Consistency over 4 weeks matters more than any single day.
+  </div>`;
+
+  weeks.forEach(w => {
+    const days = w.days || 1;
+    const mPct = Math.round(w.morning / days * 100);
+    const ePct = Math.round(w.evening / days * 100);
+    const tPct = Math.round(w.trained / days * 100);
+    const dietGood = w.dietYes + w.dietMostly;
+    const dPct = Math.round(dietGood / days * 100);
+    h += `<div class="card" style="margin-bottom:10px;">
+      <div style="padding:10px 14px;border-bottom:0.5px solid var(--bdr2);font-size:13px;font-weight:600;">${w.label}<span style="font-size:11px;color:var(--t3);font-weight:400;margin-left:6px;">${w.days} day${w.days===1?'':'s'}</span></div>
+      <div style="padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${complianceRow('🌅 Morning mobility', w.morning, days, mPct, 'var(--green)')}
+        ${complianceRow('🌙 Evening mobility', w.evening, days, ePct, 'var(--purple)')}
+        ${complianceRow('💪 Trained', w.trained, days, tPct, 'var(--blue)')}
+        ${complianceRow('🍽 Diet on track', dietGood, days, dPct, 'var(--amber)')}
+      </div>
+    </div>`;
+  });
+
+  // 4-week totals
+  const total = weeks.reduce((acc, w) => {
+    acc.morning += w.morning; acc.evening += w.evening; acc.trained += w.trained;
+    acc.diet += w.dietYes + w.dietMostly; acc.days += w.days;
+    return acc;
+  }, {morning:0, evening:0, trained:0, diet:0, days:0});
+
+  h += `<div class="card" style="margin-top:14px;background:var(--blue-lt);border-color:rgba(24,95,165,0.3);">
+    <div style="padding:12px 14px;border-bottom:0.5px solid rgba(24,95,165,0.2);font-size:13px;font-weight:700;color:var(--blue-dk);">4-week trend</div>
+    <div style="padding:12px 14px;font-size:12px;color:var(--blue-dk);line-height:1.7;">
+      Morning mobility: <strong>${Math.round(total.morning/Math.max(1,total.days)*100)}%</strong> · ${total.morning}/${total.days} days<br>
+      Evening mobility: <strong>${Math.round(total.evening/Math.max(1,total.days)*100)}%</strong> · ${total.evening}/${total.days} days<br>
+      Training: <strong>${Math.round(total.trained/Math.max(1,total.days)*100)}%</strong> · ${total.trained}/${total.days} days<br>
+      Diet on track: <strong>${Math.round(total.diet/Math.max(1,total.days)*100)}%</strong> · ${total.diet}/${total.days} days
+    </div>
+  </div>`;
+  return h;
+}
+
+function complianceRow(label, count, days, pct, color) {
+  return `<div style="background:var(--surf);border-radius:var(--rs);padding:10px;">
+    <div style="font-size:11px;color:var(--t2);margin-bottom:4px;">${label}</div>
+    <div style="display:flex;align-items:baseline;gap:6px;">
+      <span style="font-size:18px;font-weight:700;color:${color};">${pct}%</span>
+      <span style="font-size:10px;color:var(--t3);">${count}/${days}</span>
+    </div>
+    <div style="height:4px;background:var(--bdr);border-radius:2px;margin-top:6px;overflow:hidden;">
+      <div style="height:100%;width:${pct}%;background:${color};"></div>
+    </div>
+  </div>`;
 }
 
 function logWt() {
@@ -1293,7 +1481,7 @@ function handlePhoto(input){
     S.photos.push({date,note,data:e.target.result});
     try{localStorage.setItem('tapp_photos',JSON.stringify(S.photos));}catch(err){alert('Storage full — try clearing older photos.');}
     renderProgress(document.getElementById('content'));
-    setTimeout(()=>{pTab('photos',document.querySelectorAll('.tab')[2]);},50);
+    setTimeout(()=>{pTab('photos',document.querySelectorAll('.tab')[3]);},50);
   };
   reader.readAsDataURL(file);
 }
@@ -1317,13 +1505,13 @@ function deletePhoto(idx){
   try{localStorage.setItem('tapp_photos',JSON.stringify(S.photos));}catch(e){}
   document.querySelectorAll('div[style*="z-index:300"]').forEach(el=>el.remove());
   renderProgress(document.getElementById('content'));
-  setTimeout(()=>{pTab('photos',document.querySelectorAll('.tab')[2]);},50);
+  setTimeout(()=>{pTab('photos',document.querySelectorAll('.tab')[3]);},50);
 }
 
 // ── TOOLS ─────────────────────────────────────────────────────────────────────
 function renderTools(c){
   let h=`<div class="ph"><div class="pt">Tools</div></div>`;
-  h+=`<div class="tabs" style="overflow-x:auto;flex-wrap:nowrap;"><button class="tab active" onclick="tTab('1rm',this)">1RM</button><button class="tab" onclick="tTab('plate',this)">Plates</button><button class="tab" onclick="tTab('prog',this)">Map</button><button class="tab" onclick="tTab('meals',this)">Meals</button><button class="tab" onclick="tTab('backup',this)">Backup</button></div>`;
+  h+=`<div class="tabs" style="overflow-x:auto;flex-wrap:nowrap;"><button class="tab active" onclick="tTab('1rm',this)">1RM</button><button class="tab" onclick="tTab('grocery',this)">Grocery</button><button class="tab" onclick="tTab('prog',this)">Map</button><button class="tab" onclick="tTab('meals',this)">Meals</button><button class="tab" onclick="tTab('backup',this)">Backup</button></div>`;
 
   h+=`<div id="tt-1rm"><div class="sl">Estimate your 1 rep max</div><div class="card cp">
     <div class="r2">
@@ -1337,16 +1525,7 @@ function renderTools(c){
     </div>
   </div></div>`;
 
-  h+=`<div id="tt-plate" style="display:none;"><div class="sl">What to load on the bar</div><div class="card cp">
-    <div class="r2">
-      <div class="field"><label>Target weight (lbs)</label><input type="number" id="pl-t" placeholder="225" inputmode="decimal" oninput="calcPlates()"></div>
-      <div class="field"><label>Bar weight</label><select id="pl-b" onchange="calcPlates()">
-        <option value="45">45 lb (standard)</option><option value="35">35 lb</option>
-        <option value="15">15 lb (EZ bar)</option><option value="0">No bar</option>
-      </select></div>
-    </div>
-    <div id="pl-res" style="display:none;"><div class="plate-vis" id="pl-vis"></div><div id="pl-list"></div></div>
-  </div></div>`;
+  h+=`<div id="tt-grocery" style="display:none;">${renderGroceryHTML()}</div>`;
 
   // Program map
   h+=`<div id="tt-prog" style="display:none;"><div class="sl">12-week program map</div>`;
@@ -1391,7 +1570,7 @@ function renderTools(c){
 
 function tTab(t,btn){
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  ['1rm','plate','prog','meals','backup'].forEach(id=>document.getElementById(`tt-${id}`).style.display=id===t?'':'none');
+  ['1rm','grocery','prog','meals','backup'].forEach(id=>document.getElementById(`tt-${id}`).style.display=id===t?'':'none');
 }
 
 const MEALS = {
@@ -1587,6 +1766,7 @@ function exportData(){
     reminders: S.reminders,
     sessionTimers: S.sessionTimers,
     mobilityLog: S.mobilityLog,
+    dietLog: S.dietLog,
     photos: S.photos,
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
@@ -1614,6 +1794,7 @@ function importData(input){
       if(data.reminders) S.reminders = { ...S.reminders, ...data.reminders };
       if(data.sessionTimers) S.sessionTimers = data.sessionTimers;
       if(data.mobilityLog) S.mobilityLog = data.mobilityLog;
+      if(data.dietLog) S.dietLog = data.dietLog;
       if(data.photos) { S.photos = data.photos; try{localStorage.setItem('tapp_photos',JSON.stringify(S.photos));}catch(err){} }
       save();
       alert('Data restored successfully!');
@@ -1637,24 +1818,114 @@ function calc1RM(){
   document.getElementById('rm-res').style.display='';
 }
 
-function calcPlates(){
-  const target=parseFloat(document.getElementById('pl-t').value),bar=parseFloat(document.getElementById('pl-b').value);
-  if(!target||target<=bar){document.getElementById('pl-res').style.display='none';return;}
-  const perSide=(target-bar)/2;
-  const plates=[45,35,25,10,5,2.5];
-  const colors={45:'#185FA5',35:'#0F6E56',25:'#854F0B',10:'#A32D2D',5:'#534AB7',2.5:'#777'};
-  const sizes={45:52,35:46,25:40,10:32,5:26,2.5:20};
-  let rem=perSide,used=[];
-  plates.forEach(p=>{const n=Math.floor(Math.round(rem*100)/100/p);if(n>0){used.push({p,n});rem=Math.round((rem-p*n)*100)/100;}});
-  document.getElementById('pl-res').style.display='';
-  if(Math.abs(rem)>0.1){document.getElementById('pl-vis').innerHTML=`<div style="color:var(--red);font-size:13px;">Cannot make exact weight with standard plates</div>`;return;}
-  let vis=`<div style="width:10px;height:56px;background:#999;border-radius:3px;flex-shrink:0;"></div>`;
-  [...used].reverse().forEach(({p,n})=>{for(let i=0;i<n;i++)vis+=`<div class="plate" style="background:${colors[p]};width:${sizes[p]}px;height:${sizes[p]}px;">${p}</div>`;});
-  vis+=`<div style="width:70px;height:14px;background:#bbb;border-radius:3px;flex-shrink:0;"></div>`;
-  used.forEach(({p,n})=>{for(let i=0;i<n;i++)vis+=`<div class="plate" style="background:${colors[p]};width:${sizes[p]}px;height:${sizes[p]}px;">${p}</div>`;});
-  vis+=`<div style="width:10px;height:56px;background:#999;border-radius:3px;flex-shrink:0;"></div>`;
-  document.getElementById('pl-vis').innerHTML=vis;
-  document.getElementById('pl-list').innerHTML=`<div style="font-size:13px;color:var(--t2);text-align:center;margin-top:4px;">Each side: ${used.map(({p,n})=>`${n}×${p}`).join(' + ')} lbs</div>`;
+// ── GROCERY LIST ──────────────────────────────────────────────────────────────
+const GROCERY = [
+  { category:"Proteins — animal", items:[
+    "Whey protein (1 large tub — lasts ~2 weeks at 8 scoops/wk)",
+    "Boneless skinless chicken breast — 3 lbs (Mon/Fri lunch + dinner)",
+    "Boneless skinless chicken thigh — 1 lb (Wed dinner)",
+    "Ground turkey 93/7 — 1 lb (Mon dinner)",
+    "Deli turkey breast — 8 oz (Wed lunch)",
+    "Salmon fillets — 1.5 lbs (Tue + Sat dinner)",
+    "Canned tuna in water — 2 cans (Tue lunch)",
+    "Canned sardines in olive oil — 1 can (Sat lunch)",
+    "Eggs — 1.5 dozen (Thu + Sun breakfast + Tue lunch)",
+    "2% Greek yogurt — 32 oz container (Thu snack + topping)",
+    "2% cottage cheese — 16 oz container (Sun snack)",
+    "Cheddar cheese slices — 1 small pack (Wed lunch)",
+  ]},
+  { category:"Proteins — plant", items:[
+    "Firm tofu — 8 oz block (Thu dinner)",
+    "Canned chickpeas — 1 can (Sun lunch)",
+    "Canned black beans — 1 can (Fri dinner + Sun dinner)",
+    "Dried or canned lentils — 1 cup dry / 1 can (Thu lunch)",
+  ]},
+  { category:"Carbs — grains & starches", items:[
+    "Jasmine or white rice — large bag (multiple meals all week)",
+    "Quinoa — 1 lb bag (Sun lunch)",
+    "Rolled oats — 1 container (Thu + Sun breakfast)",
+    "Whole grain bread — 1 loaf (daily breakfast toast)",
+    "Whole wheat tortillas, 10-inch — 1 pack (Wed lunch)",
+    "Russet potatoes — 2 large (Mon dinner)",
+    "Sweet potatoes — 3 large (Tue, Sat, Sun dinner)",
+  ]},
+  { category:"Fruits", items:[
+    "Bananas — 1 bunch / 7+ bananas (daily breakfast + snack)",
+    "Mixed berries (fresh or frozen) — 32 oz (daily — dinner + breakfast)",
+    "Grapes — 1 lb (Wed lunch)",
+    "Pineapple chunks (or extra berries) — 16 oz (Sun snack)",
+    "Lemons — 3 (cooking + dressing)",
+  ]},
+  { category:"Vegetables", items:[
+    "Frozen mixed vegetables — 2 large bags (Mon + Fri lunch, fast prep)",
+    "Frozen broccoli — 1 large bag (Tue dinner)",
+    "Frozen stir-fry vegetables — 1 bag (Thu dinner)",
+    "Mixed salad greens — 2 large bags (Mon, Sat dinners + Tue lunch)",
+    "Bell peppers — 3 (Fri dinner fajita)",
+    "Yellow onion — 2 (Fri dinner + cooking)",
+    "Asparagus or green beans — 1 bunch (Tue or Sat side)",
+    "Cucumber — 1 (Sat lunch salad)",
+    "Tomatoes — 3 (Wed lunch + Sat lunch + dinner salads)",
+    "Lettuce — 1 head (Wed lunch wrap)",
+    "Avocado — 2 (Fri + Sun dinner)",
+    "Garlic — 1 head",
+    "Fresh ginger — small piece (Thu stir-fry)",
+    "Fresh parsley — small bunch (Sun lunch)",
+  ]},
+  { category:"Fats & condiments", items:[
+    "Extra virgin olive oil — 1 bottle (lasts weeks)",
+    "Natural peanut butter — 1 jar",
+    "Slivered almonds — small bag (Thu + Sun snacks)",
+    "Tahini — 1 small jar (Sun lunch)",
+    "Soy sauce or tamari — 1 bottle (Mon lunch + Thu dinner)",
+    "Honey — 1 small jar (Thu snack)",
+    "Salsa — 1 jar (Fri dinner)",
+    "Vinegar (balsamic or red wine) — 1 bottle (dressings)",
+  ]},
+  { category:"Drinks", items:[
+    "Unsweetened soy milk — half gallon (daily breakfast shake)",
+  ]},
+  { category:"Spices & seasonings (one-time stock)", items:[
+    "Fajita seasoning",
+    "Everything bagel seasoning",
+    "Hot sauce of choice",
+    "Cinnamon",
+    "Salt, black pepper",
+    "Garlic powder, onion powder",
+    "Italian seasoning or oregano",
+  ]},
+  { category:"Supplements (research-backed only)", items:[
+    "Creatine monohydrate — 5g daily (any unflavored micronized brand)",
+    "Vitamin D3 — 2000 IU daily",
+    "Omega-3 fish oil — 1g EPA+DHA on non-fish days (Mon/Wed/Fri)",
+  ]},
+];
+
+function renderGroceryHTML() {
+  let h = `<div class="sl">Weekly shopping list</div>
+  <div style="background:var(--surf);border-radius:var(--rs);padding:12px 14px;font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px;">
+    Everything needed for one week of the meal plan. Quantities sized for one person eating ~2,150 cal/day. Tap items to check them off — useful when shopping. Check-marks reset weekly (just refresh the tab).
+  </div>`;
+
+  GROCERY.forEach((sec, secIdx) => {
+    h += `<div class="card" style="margin-bottom:10px;">
+      <div style="padding:10px 14px;background:var(--surf);font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;border-bottom:0.5px solid var(--bdr2);">${sec.category}</div>`;
+    sec.items.forEach((item, idx) => {
+      const itemId = `gi-${secIdx}-${idx}`;
+      h += `<label for="${itemId}" style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:0.5px solid var(--bdr2);cursor:pointer;font-size:13px;line-height:1.5;">
+        <input type="checkbox" id="${itemId}" onchange="this.parentElement.style.opacity=this.checked?'0.4':'1';this.nextElementSibling.style.textDecoration=this.checked?'line-through':'none';" style="margin-top:3px;flex-shrink:0;">
+        <span>${item}</span>
+      </label>`;
+    });
+    h += `</div>`;
+  });
+
+  h += `<div class="card cp" style="background:var(--green-lt);border-color:rgba(15,110,86,0.3);">
+    <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:6px;">SUNDAY PREP TIP</div>
+    <div style="font-size:13px;color:var(--t);line-height:1.55;">Spend 90 minutes on Sunday: cook 4 days of chicken breast, hard-boil 6 eggs, bake 3 sweet potatoes, batch-cook 4 cups of rice and 2 cups of quinoa. Eliminates 80% of weekday cooking time and is the single biggest determinant of whether you stick to the plan.</div>
+  </div>`;
+
+  return h;
 }
 
 // ── PWA INSTALL ───────────────────────────────────────────────────────────────
