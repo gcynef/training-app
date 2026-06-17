@@ -255,6 +255,70 @@ input:checked+.rslider:before{transform:translateX(18px);}
 
 <script>
 // ── PROGRAM DATA ─────────────────────────────────────────────────────────────
+// Mind-muscle connection cues — keyed by exercise name (and partial-match fallbacks).
+// Format: { target: short muscle target, cue: longer visualization cue }
+const FOCUS_MAP = {
+  // BACK / PULL
+  "Chest-supported DB row": { target:"Mid traps + rhomboids (between shoulder blades)", cue:"Drive elbows up toward imaginary pockets on the UPPER back of your shirt — between your shoulder blades. Imagine crushing a pencil between your shoulder blades at the top of every rep. The DBs are just handles attached to your elbows." },
+  "Cable lat pulldown (wide)": { target:"Lats (sides of upper back)", cue:"Imagine pulling your elbows down toward your back pockets while your hands just hold the bar. Feel the lats — the muscle running from your armpit down the side of your back — initiating each rep. Squeeze them hard at the bottom." },
+  "Cable face pull": { target:"Rear delts + mid traps", cue:"Picture pulling the rope apart while driving your elbows back and slightly up. Feel the back of your shoulders contracting at the end range. The external rotation at the finish is the entire point." },
+  "Neutral-grip cable row": { target:"Mid/upper lats (width)", cue:"Feel the contraction running down the side of your back, from under your armpit toward your lower ribcage. The lats pull your elbows back — the cable is just resistance. Drive elbows past your ribs at the finish." },
+  "Neutral-grip pull-up / lat pulldown": { target:"Lats (width)", cue:"Imagine pulling your elbows down toward your hips, not pulling yourself up to the bar. Feel the lats fire from full dead-hang stretch through the squeeze at the bottom. Mind on the side of your back." },
+  "Single-arm DB row": { target:"Lats + mid back (one side)", cue:"Drive your elbow up toward the ceiling — the DB is along for the ride. Feel the working-side lat contracting from full stretch at the bottom to a hard squeeze at the top." },
+
+  // CHEST / PUSH
+  "Incline DB press": { target:"Upper chest (clavicular pec)", cue:"Imagine ropes running from your collarbones to your hands. Drive the DBs up AND slightly together so they nearly touch at the top — force a hard upper-chest squeeze for 1 second. Press through your armpits, not your hands." },
+  "Low-to-high cable fly": { target:"Upper chest", cue:"Scoop water up toward your own face from below the hips. Hands meet at chin or upper-chest level (not at your sternum). Supinate at the top — palms turning up, thumbs to opposite walls. Feel the upper chest cramping at the squeeze." },
+  "High-to-low cable fly": { target:"Lower chest", cue:"Squeeze water out of a sponge held in front of your hips. Pronate at the bottom — palms turning back toward your butt, thumbs inward. Feel the lower chest contracting along where it meets your ribcage." },
+  "Cable fly (mid pulley)": { target:"Mid chest", cue:"The stretch at the start is the whole point — let your arms travel back behind your torso. As your hands meet at chest level, supinate slightly (palms turning up toward your face). Feel the broad middle of your chest contracting." },
+  "Flat DB press": { target:"Mid chest", cue:"Drive the DBs up AND together — they should nearly touch at the top with a hard 1-second chest squeeze. Think 'press through your armpits.' Feel the broad central chest pulling your hands toward each other." },
+  "Kneeling ring fly": { target:"Outer chest in stretched position", cue:"The stretch at the bottom is the entire reason this is in your program. Feel the chest lengthened along its outer edges as the rings drift apart. Pull back to center with the chest fibers shortening — not by pulling with your arms." },
+  "Seated DB shoulder press": { target:"Front/mid delts (capped shoulder)", cue:"Drive straight up through the side delts. Imagine pushing the ceiling up with the meaty middle of your shoulders. At the top, DBs almost touch above your head with no shrug." },
+  "Cable lateral raise": { target:"Side delts (shoulder width)", cue:"Lead with your elbow — the hand is along for the ride. Feel the meat of the side delt lifting your arm out to the side. The 3-second negative is where the size comes from." },
+  "Cable tricep pushdown (rope)": { target:"Lateral head of triceps (horseshoe)", cue:"Elbows pinned to your sides — they don't move. Drive your hands down and APART at the bottom, flaring the rope to your hips. Feel the outer head of the tricep contracting hard at full lockout." },
+  "Overhead DB tricep extension": { target:"Long head of triceps (mass/thickness)", cue:"Elbows point at the ceiling and stay there. The stretch when forearms touch biceps is the point — that lengthened position is where the long head grows. Press straight up through full lockout." },
+  "Standing cable overhead tricep extension": { target:"Long head of triceps (mass/thickness)", cue:"The deep stretch when forearms touch biceps behind your head is the entire point — that loaded lengthened position is where the long head grows. Elbows pinned at your ears, pointing forward — they don't move. As you press to full lockout, spread the rope ends apart toward your hips to also catch the lateral head. Feel the back of your upper arms working from full stretch through to hard lockout contraction." },
+  "Overhead cable tricep extension": { target:"Long head of triceps", cue:"Let the rope pull your hands fully behind your head — that deep stretch is the entire purpose. Elbows at your ears, pointing forward, never flaring out. Press to full lockout." },
+  "Reverse cable fly": { target:"Rear delts (posture)", cue:"Squeeze your shoulder blades together as you fly back. Feel the back of your shoulders contracting. This is the muscle that pulls your shoulders back and fixes desk posture." },
+
+  // ARMS
+  "Incline DB curl": { target:"Biceps long head (peak)", cue:"The full dead-hang stretch at the bottom IS the exercise. Feel the bicep lengthened with your upper arm hanging behind your torso. Supinate hard at the top, squeeze the bicep for 1 second." },
+  "Spider curl": { target:"Biceps short head (peak contraction)", cue:"No momentum is possible here. Feel the bicep cramping at the very top of every rep as you curl toward your face. Hold the squeeze 1 second — that peak is the whole point." },
+  "Cable curl (straight bar)": { target:"Biceps (both heads)", cue:"Elbows locked at your sides — they do not move. Constant cable tension means feel the bicep working from full extension through to peak squeeze. 1-second squeeze at the top." },
+  "Cross-body cable curl": { target:"Biceps long head (outer arm)", cue:"Curl your hand TOWARD the opposite shoulder, not straight up. Supinate hard at the top — palm turning up toward your face. Feel the long head (outer bicep, visible from the side) contracting." },
+
+  // LOWER
+  "Hip thrust (barbell)": { target:"Glutes (max)", cue:"Drive your hips toward the ceiling using your glutes — not your lower back. At the top, pelvis slightly tucked, squeeze glutes for 1-2 seconds. Feel the meat of the glute contracting. Lower back must not hyperextend." },
+  "Zercher squat": { target:"Quads + upper back (anti-flexion)", cue:"Feel your quads loading as you sit straight down. Drive elbows out between your knees at the bottom. The bar in the elbow crease forces you to stay upright — your back has to brace hard." },
+  "Trap bar deadlift": { target:"Glutes + hamstrings + quads (full posterior)", cue:"Push the floor away. Drive through your heels and feel the glutes finishing the lift at lockout. Hips and shoulders rise at the same rate." },
+  "Romanian deadlift (DB)": { target:"Hamstrings (stretched)", cue:"Push your hips back as you lower — feel the hamstrings stretching like a rubber band. Drive hips forward to return, squeeze glutes at the top. The hamstring stretch is the entire point." },
+  "Romanian deadlift (barbell)": { target:"Hamstrings (heavy stretched)", cue:"Same as DB RDL but heavier loading. Feel the hamstrings lengthening as you push hips back, bar sliding down thighs. Squeeze glutes at top to drive hips forward." },
+  "Nordic curl negative (or lying hamstring curl)": { target:"Hamstrings (eccentric)", cue:"The slow descent is the exercise. Feel your hamstrings working overtime to control the negative for 4-6 seconds. The push-back up is just to get into position again." },
+  "Conventional deadlift": { target:"Full posterior chain", cue:"Drive the floor away through your heels. Feel the entire back of your body firing — hamstrings, glutes, erectors, traps — to lift the bar in one piece." },
+  "Back extension (Backstrom)": { target:"Spinal erectors (lower back)", cue:"Feel the muscles running on either side of your spine working to extend you. Stage-dependent intensity — never push through sharp pain. Slight forward dip at bottom in Stage 3 is intentional." },
+  "Bulgarian split squat (DB)": { target:"Front quad + glute (single leg)", cue:"Drive through your front heel — feel the front-leg quad and glute doing all the work. Lower straight down, not forward. Back leg is just for balance." },
+  "Heel-elevated back squat": { target:"Quads (back-friendly)", cue:"The heel elevation keeps you upright so quads do the work without your back compensating. Feel the quads loading as you sit straight down between your heels. Chest tall throughout." },
+  "Barbell sumo deadlift": { target:"Inner thighs + glute med", cue:"Squeeze your inner thighs and glutes as you drive the floor away. Feel the adductors and glute med working — this is intentionally different from conventional/trap bar." },
+  "Spanish squat": { target:"Quads (isolation, no spinal load)", cue:"Lean back into the band and let your quads do everything. Knees track over toes, shins vertical. Feel only the front of your thighs working." },
+  "Standing calf raise": { target:"Gastrocnemius (calf belly)", cue:"Rise as high as possible — feel the meat of the calf cramping at peak contraction. The slow eccentric to a deep stretch below the toes is where size comes from." },
+
+  // CORE
+  "Pallof press (cable)": { target:"Deep core (anti-rotation)", cue:"Feel your deep obliques bracing to keep your torso completely still as you press out. Zero rotation IS the exercise. If you're shaking or twisting, the weight is too heavy." },
+  "Dead bug": { target:"Deep core stabilizers", cue:"Lower back pressed flat to the floor throughout. Feel the deep transverse abdominis bracing as opposite limbs extend. Exhale on extension activates the stabilizers." },
+
+  // TRAPS / GRIP
+  "DB shrug": { target:"Upper traps", cue:"Shrug STRAIGHT up — not forward, not rolling. Hold the top 2 seconds with hard upper-trap squeeze. Direct trap work corrects forward head posture from desk sitting." },
+  "Dead hang": { target:"Spinal decompression + grip", cue:"Let your shoulders fully decompress — feel the spine lengthening downward. Don't actively pull. The relaxation under load is the entire point. Step down, never drop." },
+};
+
+function getFocusFor(exName) {
+  if(FOCUS_MAP[exName]) return FOCUS_MAP[exName];
+  // Partial-match fallback — for week-modified exercise names like "Back squat" → "Heel-elevated back squat"
+  for(const key of Object.keys(FOCUS_MAP)) {
+    if(exName.includes(key) || key.includes(exName)) return FOCUS_MAP[key];
+  }
+  return null;
+}
 const PHASES = [
   { weeks:[1,2],  label:"Weeks 1–2 · Technical onboarding", color:"#0F6E56", rpe:"6–7",
     desc:"Learn movement patterns at light load. RPE 6–7 — 3–4 reps left in the tank every set. Cat-cow warmup before every session. Zone 2: Thursday 40 min walk. Sunday 30 min walk.",
@@ -350,7 +414,7 @@ const DAYS = [
     {name:"Seated DB shoulder press",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Neutral or semi-pronated grip","Drive straight overhead, DBs finish close together","Keep elbows at 70° — not flared to 90°"]},
     {name:"Cable lateral raise",sets:"3×15–20",rest:60,rpe:"6–7",cues:["Cable at ankle height, stand sideways","Lead with elbow — raise to shoulder height only","3s slow negative — where cables beat dumbbells"]},
     {name:"Cable tricep pushdown (rope)",sets:"4×12–15",rest:60,rpe:"7–8",cues:["Elbows pinned to sides — they must not move","Drive down and flare rope apart at bottom","Full lockout, squeeze 1s — lateral head activation"]},
-    {name:"Overhead DB tricep extension",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Elbows at ears pointing straight up","Lower fully until forearms touch biceps — stretch is the point","Keep elbows from flaring as you fatigue","Press to full lockout and squeeze at top"]},
+    {name:"Standing cable overhead tricep extension",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Pulley at lowest setting, rope attachment","Face AWAY from the cable stack, walk a few steps forward, slight staggered stance","Bring rope behind your head — rope rests at base of skull/upper traps","Elbows point FORWARD and slightly inward, upper arms close to your ears","Slight forward lean from the hips — chest tall, core braced","Extend forward and slightly up — hands travel from behind your head to in front of your face","At lockout, ROPE ENDS SPREAD APART toward your hips — this activates the lateral head","Control the eccentric — let forearms touch biceps before each press","2-3 sec down, full stretch, deliberate press up","Don't let elbows flare out as you fatigue — keep them tracking forward","Cable maintains constant tension top to bottom — unlike DB, which goes slack at lockout"]},
   ]},
   { name:"Wednesday — Lower A", emoji:"🦵", bg:"#E1F5EE", sub:"Glute, hamstring & quad", exercises:[
     {name:"Hip thrust (barbell)",sets:"4×10–12",rest:90,rpe:"7–8",cues:["Shoulder blades on bench edge, bar in hip crease — pad it","Feet flat, shoulder-width, shins vertical at top","Drive through both heels — hips to ceiling not lower back","Squeeze glutes hard, hold 1–2s, pelvis slightly tucked","Lower back must NOT hyperextend at top"]},
@@ -441,13 +505,16 @@ let S = {
   reminders:{ morning:false, evening:false, morningTime:'07:00', eveningTime:'21:00' },
   mobilityLog:{}, // key: 'YYYY-MM-DD_morning' or '_evening' -> true
   dietLog:{}, // key: 'YYYY-MM-DD' -> 'yes' | 'mostly' | 'no'
+  cardioLog:{}, // key: 'YYYY-MM-DD_thursday' or '_sunday' -> true
+  lastKnownWeights:{}, // key: 'd0_e1' (day idx, exercise idx) -> {w, r, rpe} from before a cycle restart
 };
 
 function save() {
   try { localStorage.setItem('tapp_v4', JSON.stringify({
     logs:S.logs, weights:S.weights, week:S.week,
     reminders:S.reminders, sessionTimers:S.sessionTimers,
-    mobilityLog:S.mobilityLog, dietLog:S.dietLog
+    mobilityLog:S.mobilityLog, dietLog:S.dietLog, cardioLog:S.cardioLog,
+    lastKnownWeights:S.lastKnownWeights
   })); } catch(e) {}
 }
 function load() {
@@ -460,6 +527,8 @@ function load() {
     if(d.sessionTimers) S.sessionTimers = d.sessionTimers;
     if(d.mobilityLog) S.mobilityLog = d.mobilityLog;
     if(d.dietLog) S.dietLog = d.dietLog;
+    if(d.cardioLog) S.cardioLog = d.cardioLog;
+    if(d.lastKnownWeights) S.lastKnownWeights = d.lastKnownWeights;
     const ph = JSON.parse(localStorage.getItem('tapp_photos') || '[]');
     S.photos = ph;
   } catch(e) {}
@@ -712,12 +781,14 @@ function renderWorkout(c) {
   const today = todayKey();
   const mDone = !!S.mobilityLog[today + '_morning'];
   const eDone = !!S.mobilityLog[today + '_evening'];
-  const trainedToday = Object.keys(S.logs).some(k => {
+  const liftedToday = Object.keys(S.logs).some(k => {
     const log = S.logs[k];
     if(!log?.ts) return false;
     const logDate = new Date(log.ts);
     return logDate.toDateString() === new Date().toDateString();
   });
+  const cardioToday = !!S.cardioLog[today + '_thursday'] || !!S.cardioLog[today + '_sunday'];
+  const trainedToday = liftedToday || cardioToday;
   const diet = S.dietLog[today] || null;
 
   h += `<div class="sl">Today</div>
@@ -774,16 +845,20 @@ function renderWorkout(c) {
   const thurDesc = vo2week
     ? `20 min easy warmup, then 4 rounds of 4 min hard / 4 min easy. Hard = 90–95% max HR — too breathless to speak.`
     : `40–45 min Zone 2 walk or easy bike at conversational pace throughout.`;
+  const thurDone = !!S.cardioLog[today + '_thursday'];
+  const sunDone = !!S.cardioLog[today + '_sunday'];
   h += `<div class="sl">Rest days & cardio</div><div class="card">
-    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:0.5px solid var(--bdr2);">
-      <div style="width:36px;height:36px;border-radius:10px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">🚶</div>
-      <div style="flex:1;"><div style="font-size:14px;font-weight:500;">Thursday${vo2week?' <span class="badge bg-amber">VO2 max</span>':' <span class="badge bg-green">Zone 2</span>'}</div>
-      <div style="font-size:12px;color:var(--t2);margin-top:3px;line-height:1.5;">${thurDesc}</div></div>
+    <div onclick="toggleCardio('thursday')" style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:0.5px solid var(--bdr2);cursor:pointer;${thurDone?'background:var(--green-lt);':''}">
+      <div style="width:36px;height:36px;border-radius:10px;background:${thurDone?'var(--green)':'#E1F5EE'};display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${thurDone?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'🚶'}</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:500;">Thursday${vo2week?' <span class="badge bg-amber">VO2 max</span>':' <span class="badge bg-green">Zone 2</span>'}${thurDone?' <span class="badge bg-green">Done today</span>':''}</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:3px;line-height:1.5;">${thurDesc}</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:4px;">Tap to ${thurDone?'unmark':'mark'} as done today</div></div>
     </div>
-    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;">
-      <div style="width:36px;height:36px;border-radius:10px;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">😴</div>
-      <div style="flex:1;"><div style="font-size:14px;font-weight:500;">Sunday — Zone 2 <span class="badge bg-green">Easy</span></div>
-      <div style="font-size:12px;color:var(--t2);margin-top:3px;line-height:1.5;">30–40 min easy walk or bike. Conversational pace. Never fully sedentary on rest days — gentle movement accelerates recovery.</div></div>
+    <div onclick="toggleCardio('sunday')" style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;cursor:pointer;${sunDone?'background:var(--green-lt);':''}">
+      <div style="width:36px;height:36px;border-radius:10px;background:${sunDone?'var(--green)':'#EEEDFE'};display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${sunDone?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'😴'}</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:500;">Sunday — Zone 2 <span class="badge bg-green">Easy</span>${sunDone?' <span class="badge bg-green">Done today</span>':''}</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:3px;line-height:1.5;">30–40 min easy walk or bike. Conversational pace. Never fully sedentary on rest days — gentle movement accelerates recovery.</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:4px;">Tap to ${sunDone?'unmark':'mark'} as done today</div></div>
     </div>
   </div>`;
 
@@ -874,6 +949,16 @@ function backFromDay() {
 }
 
 // ── EXERCISE LOG ──────────────────────────────────────────────────────────────
+// Parse a prescription string like "3×8–10", "1×4–6 top set, then 3×6–8", "3×10 each", "3×6–8" → total set count
+function parsePrescribedSetCount(setsStr) {
+  if(!setsStr) return 1;
+  let total = 0;
+  // Match patterns like "3×8" or "1×4–6" — pull the leading number before ×
+  const matches = setsStr.matchAll(/(\d+)\s*[×x]/g);
+  for(const m of matches) total += parseInt(m[1]) || 0;
+  return total > 0 ? total : 3;
+}
+
 function renderExLog(c) {
   const day = DAYS[S.day];
   const exercises = getExercisesForWeek(S.day, S.week);
@@ -886,7 +971,18 @@ function renderExLog(c) {
     const candidate = S.logs[`w${w}_d${S.day}_e${S.ex}`];
     if(candidate && candidate.sets && candidate.sets.length) { prev = candidate; prevWeek = w; break; }
   }
-  if(!S.sets) S.sets = existing ? existing.sets.map(s=>({...s})) : [{w:'',r:'',rpe:''}];
+  // Also check for a "last known weight" reference from before a cycle restart
+  const lastKnown = S.lastKnownWeights ? S.lastKnownWeights[`d${S.day}_e${S.ex}`] : null;
+
+  // Pre-populate sets based on prescription if no existing log and no in-progress entry
+  if(!S.sets) {
+    if(existing) {
+      S.sets = existing.sets.map(s=>({...s}));
+    } else {
+      const count = parsePrescribedSetCount(ex.sets);
+      S.sets = Array.from({length: count}, () => ({w:'', r:'', rpe:''}));
+    }
+  }
   if(S.note === undefined || S.note === null) S.note = existing?.note || '';
 
   let h = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
@@ -895,22 +991,7 @@ function renderExLog(c) {
     <div class="ps">Week ${S.week} · ${ex.sets} · RPE ${ex.rpe}</div></div>
   </div>`;
 
-  if(prev) {
-    h += `<div class="prev-box"><div class="prev-lbl">Week ${prevWeek} — beat this</div>`;
-    h += `<div style="margin-top:6px;">`;
-    prev.sets.forEach((s, i) => {
-      const rpeTxt = s.rpe ? ` · RPE ${s.rpe}` : '';
-      h += `<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--blue-dk);padding:3px 0;${i<prev.sets.length-1?'border-bottom:0.5px solid rgba(24,95,165,0.15);':''}">
-        <span style="font-weight:500;">Set ${i+1}</span>
-        <span><strong>${s.w||'—'} lbs</strong> × ${s.r||'—'} reps${rpeTxt}</span>
-      </div>`;
-    });
-    h += `</div>`;
-    if(prev.note) h += `<div style="font-size:12px;color:var(--blue-dk);margin-top:6px;padding-top:6px;border-top:0.5px solid rgba(24,95,165,0.2);font-style:italic;">"${prev.note}"</div>`;
-    h += `</div>`;
-  }
-
-  // Overload analysis — compare current logged session (if any) vs prev
+  // Overload analysis — compare current logged session (if any) vs prev (keep at top above feel/cues)
   if(existing && prev) {
     const analysis = analyzeOverload(prev.sets, existing.sets);
     const colorMap = { progressing:'var(--green)', stalled:'var(--amber)', regressed:'var(--red)' };
@@ -919,6 +1000,23 @@ function renderExLog(c) {
     h += `<div style="background:${bgMap[analysis.status]};border-radius:var(--rs);padding:10px 12px;margin-bottom:10px;">
       <div style="font-size:11px;font-weight:700;color:${colorMap[analysis.status]};letter-spacing:0.5px;margin-bottom:4px;">${labelMap[analysis.status]}</div>
       <div style="font-size:12px;color:var(--t);line-height:1.5;">${analysis.message}</div>
+    </div>`;
+  }
+
+  // Where to feel it — mind-muscle connection card
+  const focus = getFocusFor(ex.name);
+  if(focus) {
+    h += `<div class="card cp" style="margin-bottom:10px;background:var(--purple-lt);border-color:rgba(83,74,183,0.3);">
+      <div style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Where to feel it</div>
+      <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:6px;">${focus.target}</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.55;">${focus.cue}</div>
+    </div>`;
+  }
+
+  // Last-known-weight reference (from before a cycle restart) — small banner
+  if(!prev && lastKnown) {
+    h += `<div style="background:var(--amber-lt);border-radius:var(--rs);padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--amber-dk,#854F0B);line-height:1.5;">
+      <strong>Previous cycle:</strong> ${lastKnown.w} lbs × ${lastKnown.r} reps${lastKnown.rpe?' @ RPE '+lastKnown.rpe:''}. Use as a starting reference.
     </div>`;
   }
 
@@ -934,6 +1032,14 @@ function renderExLog(c) {
     </div>
     <div style="padding:0 16px;">`;
   S.sets.forEach((s,i) => {
+    // Inline "last time" reference per set row
+    let lastRef = '';
+    if(prev && prev.sets[i]) {
+      const ps = prev.sets[i];
+      lastRef = `<div style="grid-column:2/4;font-size:10.5px;color:var(--blue-dk);padding:2px 0 6px;margin-top:-2px;">Last: <strong>${ps.w||'—'} × ${ps.r||'—'}</strong>${ps.rpe?' @ '+ps.rpe:''}</div>`;
+    } else if(!prev && lastKnown && i === 0) {
+      lastRef = `<div style="grid-column:2/4;font-size:10.5px;color:var(--amber-dk,#854F0B);padding:2px 0 6px;margin-top:-2px;">Last cycle: <strong>${lastKnown.w} × ${lastKnown.r}</strong></div>`;
+    }
     h += `<div class="set-row">
       <span class="sn">Set ${i+1}</span>
       <div class="si">
@@ -942,7 +1048,7 @@ function renderExLog(c) {
         <input type="number" inputmode="decimal" placeholder="RPE" value="${s.rpe}" min="5" max="10" step="0.5" onchange="S.sets[${i}].rpe=this.value">
       </div>
       <button class="sdel" onclick="delSet(${i})">×</button>
-    </div>`;
+    </div>${lastRef}`;
   });
   h += `</div>
     <div style="padding:10px 16px;border-top:0.5px solid var(--bdr2);display:flex;gap:8px;flex-wrap:wrap;">
@@ -1116,6 +1222,14 @@ function cycleDiet() {
                current === 'mostly' ? 'no' : null;
   if(next === null) delete S.dietLog[today];
   else S.dietLog[today] = next;
+  save();
+  render();
+}
+
+function toggleCardio(which) {
+  const key = todayKey() + '_' + which;
+  if(S.cardioLog[key]) delete S.cardioLog[key];
+  else S.cardioLog[key] = true;
   save();
   render();
 }
@@ -1348,11 +1462,12 @@ function renderComplianceHTML() {
       else if(S.dietLog[k] === 'mostly') weekData.dietMostly++;
       else if(S.dietLog[k] === 'no') weekData.dietNo++;
       // Did they train this day?
-      const dayTrained = Object.values(S.logs).some(log => {
+      const dayLifted = Object.values(S.logs).some(log => {
         if(!log?.ts) return false;
         return new Date(log.ts).toDateString() === dt.toDateString();
       });
-      if(dayTrained) weekData.trained++;
+      const dayCardio = !!S.cardioLog[k+'_thursday'] || !!S.cardioLog[k+'_sunday'];
+      if(dayLifted || dayCardio) weekData.trained++;
     }
     weeks.push(weekData);
   }
@@ -1563,9 +1678,70 @@ function renderTools(c){
     <div style="background:var(--green-lt);border-radius:var(--rs);padding:10px 12px;margin-top:12px;font-size:12px;color:var(--green);line-height:1.5;">
       <strong>Note:</strong> App updates (uploading new files to GitHub) do NOT erase your data — it's stored separately in your browser. This backup is extra insurance for switching devices or clearing your browser.
     </div>
+
+    <div class="sl" style="margin-top:24px;">Cycle restart</div>
+    <div class="card cp" style="border:1px solid rgba(163,45,45,0.3);">
+      <p style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:8px;"><strong style="color:var(--red);">Wipes everything except last-known weights.</strong> Use this when starting a clean cycle from Week 1 with proper habits in place — your most recent logged weight on each exercise is preserved as a reference for your fresh sessions, but all set history, mobility, diet, cardio, photos, and body weight logs are erased.</p>
+      <p style="font-size:12px;color:var(--t2);line-height:1.55;margin-bottom:12px;">Strongly recommend exporting a backup first in case you change your mind.</p>
+      <button class="btn" style="background:var(--red);color:white;" onclick="confirmCycleRestart()">⟲ Restart cycle (wipe + keep weights)</button>
+    </div>
   </div>`;
 
   c.innerHTML=h;
+}
+
+function confirmCycleRestart() {
+  const msg = "Restart cycle from Week 1?\n\nThis will WIPE:\n• All logged sets (every workout history)\n• Mobility check-offs\n• Diet logs\n• Cardio logs\n• Body weight history\n• Photos\n\nThis will KEEP:\n• Your most recent weight on each exercise (as a reference next time you open the exercise)\n• Reminders settings\n• Meal plan, grocery list, all program data\n\nThis can't be undone. Did you export a backup first?";
+  if(!confirm(msg)) return;
+  if(!confirm("Final confirmation — wipe history and restart from Week 1?")) return;
+
+  // Build lastKnownWeights from the most recent log per exercise slot
+  const lkw = {};
+  // Iterate all log keys, find the highest week number per d{X}_e{Y} slot
+  const slotLatest = {};
+  for(const key of Object.keys(S.logs)) {
+    const m = key.match(/^w(\d+)_d(\d+)_e(\d+)$/);
+    if(!m) continue;
+    const week = parseInt(m[1]);
+    const slotKey = `d${m[2]}_e${m[3]}`;
+    if(!slotLatest[slotKey] || week > slotLatest[slotKey].week) {
+      slotLatest[slotKey] = { week, log: S.logs[key] };
+    }
+  }
+  // For each slot, pull the heaviest weight × highest reps as the reference
+  for(const slotKey of Object.keys(slotLatest)) {
+    const sets = slotLatest[slotKey].log.sets || [];
+    let best = null;
+    for(const s of sets) {
+      const w = parseFloat(s.w) || 0;
+      const r = parseInt(s.r) || 0;
+      if(!w || !r) continue;
+      if(!best || w > best.w || (w === best.w && r > best.r)) {
+        best = { w: s.w, r: s.r, rpe: s.rpe || '' };
+      }
+    }
+    if(best) lkw[slotKey] = best;
+  }
+
+  // Wipe everything else
+  S.lastKnownWeights = lkw;
+  S.logs = {};
+  S.weights = [];
+  S.mobilityLog = {};
+  S.dietLog = {};
+  S.cardioLog = {};
+  S.sessionTimers = {};
+  S.photos = [];
+  try { localStorage.removeItem('tapp_photos'); } catch(e) {}
+  S.week = 1;
+  S.day = null;
+  S.ex = null;
+  S.sets = null;
+  S.note = '';
+
+  save();
+  alert("Cycle restarted at Week 1. Your last-known weights are preserved as references — you'll see them when you open each exercise.");
+  navTo('workout');
 }
 
 function tTab(t,btn){
@@ -1767,6 +1943,8 @@ function exportData(){
     sessionTimers: S.sessionTimers,
     mobilityLog: S.mobilityLog,
     dietLog: S.dietLog,
+    cardioLog: S.cardioLog,
+    lastKnownWeights: S.lastKnownWeights,
     photos: S.photos,
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
@@ -1795,6 +1973,8 @@ function importData(input){
       if(data.sessionTimers) S.sessionTimers = data.sessionTimers;
       if(data.mobilityLog) S.mobilityLog = data.mobilityLog;
       if(data.dietLog) S.dietLog = data.dietLog;
+      if(data.cardioLog) S.cardioLog = data.cardioLog;
+      if(data.lastKnownWeights) S.lastKnownWeights = data.lastKnownWeights;
       if(data.photos) { S.photos = data.photos; try{localStorage.setItem('tapp_photos',JSON.stringify(S.photos));}catch(err){} }
       save();
       alert('Data restored successfully!');
@@ -1913,8 +2093,8 @@ function renderGroceryHTML() {
     sec.items.forEach((item, idx) => {
       const itemId = `gi-${secIdx}-${idx}`;
       h += `<label for="${itemId}" style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:0.5px solid var(--bdr2);cursor:pointer;font-size:13px;line-height:1.5;">
-        <input type="checkbox" id="${itemId}" onchange="this.parentElement.style.opacity=this.checked?'0.4':'1';this.nextElementSibling.style.textDecoration=this.checked?'line-through':'none';" style="margin-top:3px;flex-shrink:0;">
-        <span>${item}</span>
+        <input type="checkbox" id="${itemId}" onchange="this.parentElement.style.opacity=this.checked?'0.4':'1';this.nextElementSibling.style.textDecoration=this.checked?'line-through':'none';" style="margin-top:3px;flex-shrink:0;width:18px;height:18px;">
+        <span style="flex:1;min-width:0;word-break:break-word;">${item}</span>
       </label>`;
     });
     h += `</div>`;
