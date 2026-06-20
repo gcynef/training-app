@@ -95,8 +95,11 @@ label{font-size:12px;color:var(--t2);display:block;margin-bottom:5px;font-weight
 .set-row{display:flex;align-items:center;gap:7px;padding:9px 0;border-bottom:0.5px solid var(--bdr2);}
 .set-row:last-child{border-bottom:none;}
 .sn{font-size:12px;color:var(--t3);width:40px;flex-shrink:0;font-weight:500;}
-.si{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+.si{flex:1;display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr;gap:5px;}
 .si input{padding:8px 5px;font-size:13px;text-align:center;}
+.si .prev-cell{padding:8px 4px;font-size:12px;text-align:center;color:var(--blue);background:var(--blue-lt);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:600;line-height:1.2;}
+.si .prev-cell-amber{padding:8px 4px;font-size:12px;text-align:center;color:#854F0B;background:rgba(133,79,11,0.1);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:600;line-height:1.2;}
+.si .prev-cell-empty{padding:8px 4px;font-size:11px;text-align:center;color:var(--t3);background:transparent;display:flex;align-items:center;justify-content:center;}
 .sdel{color:var(--red);background:none;border:none;font-size:22px;cursor:pointer;padding:0 3px;flex-shrink:0;line-height:1;}
 
 /* Prev box */
@@ -259,55 +262,58 @@ input:checked+.rslider:before{transform:translateX(18px);}
 // Format: { target: short muscle target, cue: longer visualization cue }
 const FOCUS_MAP = {
   // BACK / PULL
-  "Chest-supported DB row": { target:"Mid traps + rhomboids (between shoulder blades)", cue:"Drive elbows up toward imaginary pockets on the UPPER back of your shirt — between your shoulder blades. Imagine crushing a pencil between your shoulder blades at the top of every rep. The DBs are just handles attached to your elbows." },
-  "Cable lat pulldown (wide)": { target:"Lats (sides of upper back)", cue:"Imagine pulling your elbows down toward your back pockets while your hands just hold the bar. Feel the lats — the muscle running from your armpit down the side of your back — initiating each rep. Squeeze them hard at the bottom." },
-  "Cable face pull": { target:"Rear delts + mid traps", cue:"Picture pulling the rope apart while driving your elbows back and slightly up. Feel the back of your shoulders contracting at the end range. The external rotation at the finish is the entire point." },
-  "Neutral-grip cable row": { target:"Mid/upper lats (width)", cue:"Feel the contraction running down the side of your back, from under your armpit toward your lower ribcage. The lats pull your elbows back — the cable is just resistance. Drive elbows past your ribs at the finish." },
-  "Neutral-grip pull-up / lat pulldown": { target:"Lats (width)", cue:"Imagine pulling your elbows down toward your hips, not pulling yourself up to the bar. Feel the lats fire from full dead-hang stretch through the squeeze at the bottom. Mind on the side of your back." },
-  "Single-arm DB row": { target:"Lats + mid back (one side)", cue:"Drive your elbow up toward the ceiling — the DB is along for the ride. Feel the working-side lat contracting from full stretch at the bottom to a hard squeeze at the top." },
+  "Chest-supported DB row": { target:"Mid back, between your shoulder blades, near your spine", cue:"Drive your elbows up and back toward the area between your shoulder blades. Your job is to squeeze your shoulder blades together as hard as you can at the top — when that happens fully, your elbows naturally end up positioned past your torso line (which is what you've been feeling — that's correct, not too far). At the peak of every rep, feel a hard contraction in the center of your upper back near your spine. The DBs are just handles attached to your elbows — don't pull with your arms. You should NOT feel this dominating in the sides of your back (that's lats, wrong target here) or in your biceps." },
+  "Cable lat pulldown (wide)": { target:"Sides of your back (from armpit down to lower ribs)", cue:"Imagine pulling your elbows down toward your pant pockets (the ones on your butt/hips) while your hands just hold the bar. Feel the muscle running down the side of your back from your armpit to your lower ribs initiating each rep — this is the lats. Squeeze them hard for 1 second at the bottom." },
+  "Kneeling cable pulldown": { target:"Sides of your back (lats — for width)", cue:"Drive your elbows DOWN toward your pant pockets (the ones on your butt) — the bar is just along for the ride. Feel the muscle running down the side of your back from armpit to lower ribs initiating each rep. Let your shoulder blades rise fully at the top into the stretch, then drive elbows down with a hard 1-second squeeze at the bottom. The kneeling position keeps you grounded so the cable can't pull you up." },
+  "Cable face pull": { target:"Back of your shoulders + mid back near spine", cue:"Pull the rope apart while driving your elbows back and slightly up. Feel the back of your shoulders contracting at the end range, with your shoulder blades squeezing together in your mid back. The external rotation at the finish (knuckles pointing up) is the entire point — that's what protects your shoulder joint long-term." },
+  "Neutral-grip cable row": { target:"Sides of your back (lats — for width)", cue:"Feel the contraction running down the side of your back, from under your armpit toward your lower ribs. The lats pull your elbows back — the cable is just resistance. Drive elbows past your ribs at the finish. Keep your shoulders pulled DOWN away from your ears throughout — don't let them shrug up." },
+  "Neutral-grip pull-up / lat pulldown": { target:"Sides of your back (lats — for width)", cue:"Imagine pulling your elbows down toward your pant pockets (the ones on your hips), not pulling yourself up to the bar. Feel the muscle on the side of your back from armpit to lower ribs firing from full dead-hang stretch through the squeeze at the bottom." },
+  "Single-arm DB row": { target:"Mid back near spine + side of back (one side)", cue:"Drive your elbow up toward the ceiling — the DB is just along for the ride. At the top, squeeze your shoulder blade toward your spine. Feel the working-side mid back near the spine, plus some involvement on the side of your back, from full stretch at the bottom to a hard squeeze at the top." },
 
   // CHEST / PUSH
-  "Incline DB press": { target:"Upper chest (clavicular pec)", cue:"Imagine ropes running from your collarbones to your hands. Drive the DBs up AND slightly together so they nearly touch at the top — force a hard upper-chest squeeze for 1 second. Press through your armpits, not your hands." },
-  "Low-to-high cable fly": { target:"Upper chest", cue:"Scoop water up toward your own face from below the hips. Hands meet at chin or upper-chest level (not at your sternum). Supinate at the top — palms turning up, thumbs to opposite walls. Feel the upper chest cramping at the squeeze." },
-  "High-to-low cable fly": { target:"Lower chest", cue:"Squeeze water out of a sponge held in front of your hips. Pronate at the bottom — palms turning back toward your butt, thumbs inward. Feel the lower chest contracting along where it meets your ribcage." },
-  "Cable fly (mid pulley)": { target:"Mid chest", cue:"The stretch at the start is the whole point — let your arms travel back behind your torso. As your hands meet at chest level, supinate slightly (palms turning up toward your face). Feel the broad middle of your chest contracting." },
-  "Flat DB press": { target:"Mid chest", cue:"Drive the DBs up AND together — they should nearly touch at the top with a hard 1-second chest squeeze. Think 'press through your armpits.' Feel the broad central chest pulling your hands toward each other." },
-  "Kneeling ring fly": { target:"Outer chest in stretched position", cue:"The stretch at the bottom is the entire reason this is in your program. Feel the chest lengthened along its outer edges as the rings drift apart. Pull back to center with the chest fibers shortening — not by pulling with your arms." },
-  "Seated DB shoulder press": { target:"Front/mid delts (capped shoulder)", cue:"Drive straight up through the side delts. Imagine pushing the ceiling up with the meaty middle of your shoulders. At the top, DBs almost touch above your head with no shrug." },
-  "Cable lateral raise": { target:"Side delts (shoulder width)", cue:"Lead with your elbow — the hand is along for the ride. Feel the meat of the side delt lifting your arm out to the side. The 3-second negative is where the size comes from." },
-  "Cable tricep pushdown (rope)": { target:"Lateral head of triceps (horseshoe)", cue:"Elbows pinned to your sides — they don't move. Drive your hands down and APART at the bottom, flaring the rope to your hips. Feel the outer head of the tricep contracting hard at full lockout." },
-  "Overhead DB tricep extension": { target:"Long head of triceps (mass/thickness)", cue:"Elbows point at the ceiling and stay there. The stretch when forearms touch biceps is the point — that lengthened position is where the long head grows. Press straight up through full lockout." },
-  "Standing cable overhead tricep extension": { target:"Long head of triceps (mass/thickness)", cue:"The deep stretch when forearms touch biceps behind your head is the entire point — that loaded lengthened position is where the long head grows. Elbows pinned at your ears, pointing forward — they don't move. As you press to full lockout, spread the rope ends apart toward your hips to also catch the lateral head. Feel the back of your upper arms working from full stretch through to hard lockout contraction." },
-  "Overhead cable tricep extension": { target:"Long head of triceps", cue:"Let the rope pull your hands fully behind your head — that deep stretch is the entire purpose. Elbows at your ears, pointing forward, never flaring out. Press to full lockout." },
-  "Reverse cable fly": { target:"Rear delts (posture)", cue:"Squeeze your shoulder blades together as you fly back. Feel the back of your shoulders contracting. This is the muscle that pulls your shoulders back and fixes desk posture." },
+  "Incline DB press": { target:"Upper chest (just below your collarbones)", cue:"Imagine ropes running from your collarbones to your hands. Drive the DBs up AND slightly together so they nearly touch at the top — force a hard squeeze in the upper chest below your collarbones for 1 second. Think 'press through your armpits,' not through your hands." },
+  "Low-to-high cable fly": { target:"Upper chest (just below your collarbones)", cue:"Scoop water up toward your own face from below your hips. Hands meet at chin or upper-chest level (not at your sternum). At the top, supinate — palms turning up toward the ceiling, thumbs pointing out to opposite walls. Feel the upper chest just below your collarbones cramping at the squeeze." },
+  "High-to-low cable fly": { target:"Lower chest (above your ribcage)", cue:"Squeeze water out of a sponge held in front of your hips. At the bottom, pronate — palms turning back toward your butt, thumbs pointing inward and slightly behind you. Feel the lower chest contracting along where it meets your ribcage." },
+  "Cable fly (mid pulley)": { target:"Middle of your chest (center mass)", cue:"The stretch at the start is the whole point — let your arms travel back behind your torso line. As your hands meet at chest level, slightly supinate (palms turning up toward your face). Feel the broad middle of your chest contracting horizontally across the center." },
+  "Flat DB press": { target:"Middle of your chest (center and outer mass)", cue:"Drive the DBs up AND together — they should nearly touch at the top with a hard 1-second chest squeeze. Think 'press through your armpits.' Feel the broad central chest pulling your hands toward each other." },
+  "Weighted dips (chest-focused)": { target:"Outer and lower chest (stretched compound)", cue:"The deep stretched bottom position is the entire point — feel the chest lengthened across its outer edges and lower portion (where it meets your ribcage) as your upper arms drop parallel to the floor. Forward torso lean keeps the chest doing the work (not triceps). On the press up, picture the chest contracting to bring your arms back together while the back of your upper arms locks out." },
+  "Kneeling ring fly": { target:"Outer chest in the deeply stretched position", cue:"The stretch at the bottom is the entire reason this is in your program. Feel the chest lengthened along its outer edges as the rings drift apart. Pull back to center with the chest fibers shortening — not by pulling with your arms." },
+  "Seated DB shoulder press": { target:"Cap of your shoulders (front and outside)", cue:"Drive straight up through the meaty top of your shoulders. Imagine pushing the ceiling up with the outside-cap of your shoulders. At the top, DBs almost touch above your head — don't let your shoulders shrug up to your ears." },
+  "Cable lateral raise": { target:"Outside / cap of your shoulders (for width)", cue:"Lead with your elbow — the hand is along for the ride. Feel the meat of the side of your shoulder lifting your arm out. The 3-second slow lowering on each rep is where the size comes from." },
+  "Cable tricep pushdown (rope)": { target:"Outside back of your upper arm (the 'horseshoe')", cue:"Elbows pinned to your sides — they don't move. Drive your hands down and APART at the bottom, flaring the rope ends out to your hips. Feel the outside of the back of your upper arm contracting hard at full lockout." },
+  "Overhead DB tricep extension": { target:"Back of your upper arm (long head — for thickness)", cue:"Elbows point at the ceiling and stay there. The stretch when your forearms touch your biceps is the point — that lengthened position is where the back of your upper arm grows in thickness. Press straight up through full lockout." },
+  "Standing cable overhead tricep extension": { target:"Back of your upper arm (for thickness)", cue:"The deep stretch when your forearms touch your biceps behind your head is the entire point — that loaded lengthened position is where the back of your upper arm grows in thickness. Elbows pinned at your ears, pointing forward — they don't move. As you press to full lockout, spread the rope ends apart toward your hips. Feel the back of your upper arms working from full stretch through to hard lockout contraction." },
+  "Overhead cable tricep extension": { target:"Back of your upper arm (for thickness)", cue:"Let the rope pull your hands fully behind your head — that deep stretch is the entire purpose. Elbows at your ears, pointing forward, never flaring out. Press to full lockout, feel the back of your upper arms working from stretched bottom to hard contraction." },
+  "Reverse cable fly": { target:"Back of your shoulders (for posture correction)", cue:"Squeeze your shoulder blades together as you fly back. Feel the back of your shoulders contracting. This is the muscle that pulls your shoulders back and fixes desk posture." },
 
   // ARMS
-  "Incline DB curl": { target:"Biceps long head (peak)", cue:"The full dead-hang stretch at the bottom IS the exercise. Feel the bicep lengthened with your upper arm hanging behind your torso. Supinate hard at the top, squeeze the bicep for 1 second." },
-  "Spider curl": { target:"Biceps short head (peak contraction)", cue:"No momentum is possible here. Feel the bicep cramping at the very top of every rep as you curl toward your face. Hold the squeeze 1 second — that peak is the whole point." },
-  "Cable curl (straight bar)": { target:"Biceps (both heads)", cue:"Elbows locked at your sides — they do not move. Constant cable tension means feel the bicep working from full extension through to peak squeeze. 1-second squeeze at the top." },
-  "Cross-body cable curl": { target:"Biceps long head (outer arm)", cue:"Curl your hand TOWARD the opposite shoulder, not straight up. Supinate hard at the top — palm turning up toward your face. Feel the long head (outer bicep, visible from the side) contracting." },
+  "Incline DB curl": { target:"Outer part of your bicep (the side you see from a profile view)", cue:"The full dead-hang stretch at the bottom IS the exercise. Feel the bicep lengthened with your upper arm hanging behind your torso. Supinate hard at the top (palm rotating toward your face), squeeze the bicep for 1 second." },
+  "Spider curl": { target:"Inner part of your bicep (creates the peak)", cue:"No momentum is possible here. Feel the bicep cramping at the very top of every rep as you curl toward your face. Hold the squeeze 1 second — that peak contraction is the whole point." },
+  "Cable curl (straight bar)": { target:"Front of your upper arm (both bicep parts)", cue:"Elbows locked at your sides — they do not move. Constant cable tension means feel the bicep working from full extension through to peak squeeze. 1-second squeeze at the top." },
+  "Cross-body cable curl": { target:"Outer part of your bicep (visible from the side)", cue:"Curl your hand TOWARD the opposite shoulder, not straight up. Supinate hard at the top — palm turning up toward your face. Feel the outer part of your bicep (the side you see from a profile view) contracting." },
 
   // LOWER
-  "Hip thrust (barbell)": { target:"Glutes (max)", cue:"Drive your hips toward the ceiling using your glutes — not your lower back. At the top, pelvis slightly tucked, squeeze glutes for 1-2 seconds. Feel the meat of the glute contracting. Lower back must not hyperextend." },
-  "Zercher squat": { target:"Quads + upper back (anti-flexion)", cue:"Feel your quads loading as you sit straight down. Drive elbows out between your knees at the bottom. The bar in the elbow crease forces you to stay upright — your back has to brace hard." },
-  "Trap bar deadlift": { target:"Glutes + hamstrings + quads (full posterior)", cue:"Push the floor away. Drive through your heels and feel the glutes finishing the lift at lockout. Hips and shoulders rise at the same rate." },
-  "Romanian deadlift (DB)": { target:"Hamstrings (stretched)", cue:"Push your hips back as you lower — feel the hamstrings stretching like a rubber band. Drive hips forward to return, squeeze glutes at the top. The hamstring stretch is the entire point." },
-  "Romanian deadlift (barbell)": { target:"Hamstrings (heavy stretched)", cue:"Same as DB RDL but heavier loading. Feel the hamstrings lengthening as you push hips back, bar sliding down thighs. Squeeze glutes at top to drive hips forward." },
-  "Nordic curl negative (or lying hamstring curl)": { target:"Hamstrings (eccentric)", cue:"The slow descent is the exercise. Feel your hamstrings working overtime to control the negative for 4-6 seconds. The push-back up is just to get into position again." },
-  "Conventional deadlift": { target:"Full posterior chain", cue:"Drive the floor away through your heels. Feel the entire back of your body firing — hamstrings, glutes, erectors, traps — to lift the bar in one piece." },
-  "Back extension (Backstrom)": { target:"Spinal erectors (lower back)", cue:"Feel the muscles running on either side of your spine working to extend you. Stage-dependent intensity — never push through sharp pain. Slight forward dip at bottom in Stage 3 is intentional." },
-  "Bulgarian split squat (DB)": { target:"Front quad + glute (single leg)", cue:"Drive through your front heel — feel the front-leg quad and glute doing all the work. Lower straight down, not forward. Back leg is just for balance." },
-  "Heel-elevated back squat": { target:"Quads (back-friendly)", cue:"The heel elevation keeps you upright so quads do the work without your back compensating. Feel the quads loading as you sit straight down between your heels. Chest tall throughout." },
-  "Barbell sumo deadlift": { target:"Inner thighs + glute med", cue:"Squeeze your inner thighs and glutes as you drive the floor away. Feel the adductors and glute med working — this is intentionally different from conventional/trap bar." },
-  "Spanish squat": { target:"Quads (isolation, no spinal load)", cue:"Lean back into the band and let your quads do everything. Knees track over toes, shins vertical. Feel only the front of your thighs working." },
-  "Standing calf raise": { target:"Gastrocnemius (calf belly)", cue:"Rise as high as possible — feel the meat of the calf cramping at peak contraction. The slow eccentric to a deep stretch below the toes is where size comes from." },
+  "Hip thrust (barbell)": { target:"Main butt muscle", cue:"Drive your hips toward the ceiling using your butt muscles — not your lower back. At the top, pelvis slightly tucked, squeeze your butt for 1-2 seconds. Feel the meat of the glute contracting. Lower back must not hyperextend." },
+  "Zercher squat": { target:"Front of your thighs + upper back bracing", cue:"Feel the front of your thighs loading as you sit straight down. Drive elbows out between your knees at the bottom. The bar in the elbow crease forces you to stay upright — your upper back has to brace hard." },
+  "Trap bar deadlift": { target:"Butt + back of thighs + front of thighs (full lower body)", cue:"Push the floor away. Drive through your heels and feel your butt finishing the lift at lockout. Hips and shoulders rise at the same rate." },
+  "Romanian deadlift (DB)": { target:"Back of your thighs (stretched loading)", cue:"Push your hips back as you lower — feel the back of your thighs stretching like a rubber band. Drive hips forward to return, squeeze your butt at the top. The stretch in the back of your thighs is the entire point." },
+  "Romanian deadlift (barbell)": { target:"Back of your thighs (heavy stretched)", cue:"Same as DB version but heavier loading. Feel the back of your thighs lengthening as you push hips back, bar sliding down your thighs. Squeeze your butt at the top to drive hips forward." },
+  "Nordic curl negative (or lying hamstring curl)": { target:"Back of your thighs (slow lowering)", cue:"The slow descent is the exercise. Feel the back of your thighs working overtime to control the negative for 4-6 seconds. The push-back up is just to get into position again." },
+  "Conventional deadlift": { target:"Entire back of your body (head to heel)", cue:"Drive the floor away through your heels. Feel the entire back of your body firing — back of thighs, butt, lower back, upper back — to lift the bar in one piece." },
+  "Back extension (Backstrom)": { target:"Lower back muscles running along your spine", cue:"Feel the muscles running on either side of your spine in your lower back working to extend you. Stage-dependent intensity — never push through sharp pain. Slight forward dip at bottom in Stage 3 is intentional." },
+  "Bulgarian split squat (DB)": { target:"Front of your thigh + butt (working leg only)", cue:"Drive through your front heel — feel the front of your thigh and your butt on the working leg doing all the work. Lower straight down, not forward. Back leg is just for balance." },
+  "Heel-elevated back squat": { target:"Front of your thighs (back-friendly)", cue:"The heel elevation keeps you upright so the front of your thighs does the work without your back compensating. Feel your thighs loading as you sit straight down between your heels. Chest tall throughout." },
+  "Barbell sumo deadlift": { target:"Inner thighs + outer butt", cue:"Squeeze your inner thighs and your butt as you drive the floor away. Feel the inner thigh muscles and the outside of your butt working — this is intentionally different from your other deadlift days." },
+  "Spanish squat": { target:"Front of your thighs only (no back load)", cue:"Lean back into the band and let the front of your thighs do everything. Knees track over toes, shins vertical. Feel only the front of your thighs working." },
+  "Standing calf raise": { target:"Main calf muscle (the diamond shape)", cue:"Rise as high as possible — feel the meat of the calf cramping at peak contraction. The slow lowering to a deep stretch below your toes is where size comes from." },
 
   // CORE
-  "Pallof press (cable)": { target:"Deep core (anti-rotation)", cue:"Feel your deep obliques bracing to keep your torso completely still as you press out. Zero rotation IS the exercise. If you're shaking or twisting, the weight is too heavy." },
-  "Dead bug": { target:"Deep core stabilizers", cue:"Lower back pressed flat to the floor throughout. Feel the deep transverse abdominis bracing as opposite limbs extend. Exhale on extension activates the stabilizers." },
+  "Pallof press (cable)": { target:"Deep core (anti-rotation)", cue:"Feel your deep core bracing to keep your torso completely still as you press out. Zero rotation IS the exercise. If you're shaking or twisting, the weight is too heavy." },
+  "Dead bug": { target:"Deep core stabilizers", cue:"Lower back pressed flat to the floor throughout. Feel the deep core bracing as opposite limbs extend. Exhale on extension activates the stabilizers." },
 
   // TRAPS / GRIP
-  "DB shrug": { target:"Upper traps", cue:"Shrug STRAIGHT up — not forward, not rolling. Hold the top 2 seconds with hard upper-trap squeeze. Direct trap work corrects forward head posture from desk sitting." },
+  "DB shrug": { target:"Mid back, between and below your shoulder blades", cue:"Stand facing an incline bench set at 60-65°, lean your chest against the pad. DBs hang straight down. Initiate by squeezing your shoulder blades together and slightly DOWN — think 'pinch and pull down,' not 'shrug up.' Feel the contraction running across the middle of your upper back, between and slightly below your shoulder blades. Hold the squeeze 2 seconds at the peak. This variation targets the mid/lower part of your trap muscle — the part responsible for healthy shoulder posture, which the standard upright shrug doesn't reach." },
+  "DB shrug (leaning)": { target:"Mid back, between and below your shoulder blades", cue:"Stand facing an incline bench set at 60-65°, lean your chest against the pad. DBs hang straight down. Initiate by squeezing your shoulder blades together and slightly DOWN — think 'pinch and pull down,' not 'shrug up.' Feel the contraction running across the middle of your upper back, between and slightly below your shoulder blades. Hold the squeeze 2 seconds at the peak. This variation targets the mid/lower part of your trap muscle — the part responsible for healthy shoulder posture, which the standard upright shrug doesn't reach." },
   "Dead hang": { target:"Spinal decompression + grip", cue:"Let your shoulders fully decompress — feel the spine lengthening downward. Don't actively pull. The relaxation under load is the entire point. Step down, never drop." },
 };
 
@@ -316,6 +322,82 @@ function getFocusFor(exName) {
   // Partial-match fallback — for week-modified exercise names like "Back squat" → "Heel-elevated back squat"
   for(const key of Object.keys(FOCUS_MAP)) {
     if(exName.includes(key) || key.includes(exName)) return FOCUS_MAP[key];
+  }
+  return null;
+}
+
+// Tempo notation: eccentric - stretch hold - concentric - peak contraction hold (seconds)
+// Always reads: down → stretch hold → up → contract hold
+const TEMPO_MAP = {
+  // Compound presses
+  "Incline DB press": "3-1-1-1",
+  "Flat DB press": "3-1-1-1",
+  "Seated DB shoulder press": "3-1-1-1",
+  "Weighted dips (chest-focused)": "3-1-1-1",
+
+  // Compound lower
+  "Hip thrust (barbell)": "2-0-1-2",
+  "Zercher squat": "3-1-1-0",
+  "Trap bar deadlift": "2-0-1-0",
+  "Conventional deadlift": "2-0-1-0",
+  "Romanian deadlift (DB)": "3-1-1-1",
+  "Romanian deadlift (barbell)": "3-1-1-1",
+  "Nordic curl negative (or lying hamstring curl)": "5-0-1-0",
+  "Bulgarian split squat (DB)": "3-1-1-0",
+  "Heel-elevated back squat": "3-1-1-0",
+  "Barbell sumo deadlift": "2-0-1-0",
+  "Spanish squat": "3-1-2-1",
+
+  // Pulldowns
+  "Cable lat pulldown (wide)": "2-0-1-1",
+  "Kneeling cable pulldown": "2-0-1-1",
+  "Neutral-grip pull-up / lat pulldown": "2-0-1-1",
+
+  // Rows
+  "Chest-supported DB row": "2-1-1-1",
+  "Neutral-grip cable row": "2-0-1-1",
+  "Single-arm DB row": "2-0-1-1",
+
+  // Flys & posterior shoulder
+  "Low-to-high cable fly": "3-1-2-1",
+  "High-to-low cable fly": "3-1-2-1",
+  "Cable fly (mid pulley)": "3-1-2-1",
+  "Kneeling ring fly": "3-2-2-0",
+  "Cable face pull": "2-0-1-2",
+  "Reverse cable fly": "2-0-1-2",
+
+  // Shoulders
+  "Cable lateral raise": "3-0-1-1",
+
+  // Curls
+  "Incline DB curl": "3-1-1-1",
+  "Spider curl": "3-0-1-2",
+  "Cable curl (straight bar)": "2-0-1-1",
+  "Cross-body cable curl": "2-0-1-1",
+
+  // Triceps
+  "Cable tricep pushdown (rope)": "3-0-1-1",
+  "Overhead DB tricep extension": "3-1-1-1",
+  "Standing cable overhead tricep extension": "3-1-1-1",
+  "Overhead cable tricep extension": "3-1-1-1",
+
+  // Traps & calves
+  "DB shrug (leaning)": "2-1-1-2",
+  "Standing calf raise": "3-1-1-1",
+
+  // Core
+  "Pallof press (cable)": "2-2-1-0",
+  "Dead bug": "3-0-3-0",
+
+  // Isometric holds — no tempo
+  "Dead hang": "Hold",
+  "Back extension (Backstrom)": "Stage-based",
+};
+
+function getTempoFor(exName) {
+  if(TEMPO_MAP[exName]) return TEMPO_MAP[exName];
+  for(const key of Object.keys(TEMPO_MAP)) {
+    if(exName.includes(key) || key.includes(exName)) return TEMPO_MAP[key];
   }
   return null;
 }
@@ -398,14 +480,14 @@ function getExercisesForWeek(dayIdx, week) {
 
 const DAYS = [
   { name:"Monday — Upper A", emoji:"💪", bg:"#E6F1FB", sub:"Pull focus + arms + traps", exercises:[
-    {name:"Chest-supported DB row",sets:"4×10–12",rest:90,rpe:"7–8",cues:["Bench at 30–45° incline, lie face-down","Neutral grip — palms facing each other, DBs vertical","Elbows at 45–60° from torso — not wide, not tucked","Full dead-hang stretch at the bottom of every rep","Cue: drive elbows into your back pockets","Squeeze shoulder blades fully at the top"]},
-    {name:"Kneeling cable pulldown",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Kneel facing the cable machine, sit back on heels for stability — no leg pad needed","Overhand grip slightly wider than shoulder-width, or neutral grip if shoulder sensitivity","Full stretch at the top — let shoulder blades rise fully before each rep","Lean back slightly 10–15°, drive elbows down and toward your back pockets","Bar or rope to upper chest, squeeze lats hard for 1s at the bottom","Kneeling gives enough ground resistance to load properly without being pulled up"]},
+    {name:"Chest-supported DB row",sets:"4×10–12",rest:90,rpe:"7–8",cues:["Bench at 30–45° incline, lie face-down with chest pressed against the pad","Neutral grip — palms facing each other, DBs vertical","Elbows at 45–60° from torso — not wide, not tucked","Full dead-hang stretch at the bottom of every rep","Drive your elbows up and back toward the area between your shoulder blades","Don't try to drive elbows 'around' your torso — just squeeze shoulder blades together as hard as you can, elbows will end up past your torso line naturally","Hold the peak contraction 1 second — feel a hard squeeze in the middle of your upper back near your spine","2 sec lower (controlled stretch), no momentum back up — quality over weight"]},
+    {name:"Kneeling cable pulldown",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Kneel facing the cable machine, sit back on heels for stability — no leg pad needed","Overhand grip slightly wider than shoulder-width, or neutral grip if shoulder sensitivity","Full stretch at the top — let shoulder blades rise fully before each rep","Lean back slightly 10–15°, drive elbows down toward your pant pockets (the ones on your butt)","Bar or rope to upper chest, squeeze the sides of your back hard for 1s at the bottom","Kneeling gives enough ground resistance to load properly without being pulled up"]},
     {name:"Cable face pull",sets:"3×15",rest:60,rpe:"6–7",cues:["Pulley at forehead height, rope attachment","Drive elbows back and wide — flared, not tucked","Pull rope toward forehead, split rope at the end","External rotate fully — knuckles pointing to ceiling"]},
-    {name:"Neutral-grip cable row",sets:"3×12",rest:90,rpe:"7–8",cues:["Neutral grip, chest tall throughout","Row to sternum, elbows at 45°","Back pockets cue applies here too","Full shoulder blade squeeze at top"]},
-    {name:"DB shrug",sets:"3×15",rest:60,rpe:"6–7",cues:["Heavy DBs at sides, arms straight","Shrug straight up — not forward, not rolling","Hold the top position 2s, squeeze upper traps hard","Slow controlled descent — don't just drop it","Direct upper trap work corrects forward head posture from desk sitting"]},
-    {name:"Dead hang",sets:"3×20–30s",rest:60,rpe:"6",cues:["Hang from pull-up bar with full grip, arms straight","Let shoulders fully decompress — feel the spine lengthen","Breathe slowly and relax into it — don't tense","Build toward 60s holds over 12 weeks","Attia: dead hangs are one of the highest ROI longevity investments — grip strength + spinal decompression"]},
+    {name:"Neutral-grip cable row",sets:"3×12",rest:90,rpe:"7–8",cues:["Neutral grip (palms facing each other), chest tall throughout","Before each pull: pull shoulders DOWN away from your ears — don't let them shrug up during the row","Row to sternum, elbows tracking close along your sides","Drive elbows back PAST your ribs — toward your pant pockets behind you","Full squeeze of the sides of your back at the end","V-handle attachment is best — your current dual-handle setup limits elbow travel"]},
+    {name:"DB shrug (leaning)",sets:"3×15",rest:60,rpe:"6–7",cues:["Set an incline bench at 60-65°","Stand FACING the bench, lean your chest against the pad — DBs hang straight toward the floor","The angle changes the line of pull — biases mid/lower part of your trap muscle instead of upper","Initiate by squeezing your shoulder blades together and slightly DOWN — think 'pinch and pull down', not 'shrug up'","DBs travel up and slightly backward relative to your body angle","Hold the peak contraction 2 seconds with hard scapular squeeze","Slow controlled return — feel the stretch in the mid back at the bottom","Targets the part of the trap muscle that pulls your shoulders back and down — protective work for desk posture"]},
     {name:"Incline DB curl",sets:"4×12–15",rest:60,rpe:"7–8",cues:["Bench at 45–60°, upper arm hangs behind torso","Full dead-hang stretch at bottom — that's the point","Supinate wrist as you curl, hard squeeze at top","Do NOT swing — if you are, the weight is too heavy"]},
     {name:"Spider curl",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Face-down on incline bench, upper arms perpendicular to floor","Curl toward face — short head peak contraction","No momentum possible — go lighter than you think"]},
+    {name:"Dead hang",sets:"3×20–30s",rest:60,rpe:"6",cues:["Placed at the END of the session — grip is fresh-enough for the hold but won't compromise curl work earlier","Hang from pull-up bar with full grip, arms straight","Let shoulders fully decompress — feel the spine lengthen","Breathe slowly and relax into it — don't tense","Build toward 60s holds over 12 weeks","Always step down — never let go and drop","Attia: dead hangs are one of the highest ROI longevity investments — grip strength + spinal decompression","PAUSED until PT clears the recompression symptom — replace with hollow body hang (legs at hip height) if you want to keep something in this slot"]},
   ]},
   { name:"Tuesday — Push", emoji:"🔥", bg:"#FAEEDA", sub:"Chest, shoulders, triceps", exercises:[
     {name:"Incline DB press",sets:"4×8–10",rest:120,rpe:"7–8",cues:["Bench at 30–45° — higher shifts load to shoulders","Elbows at 70° from torso, not 90°","Full chest stretch at bottom, brief pause","Drive up and slightly together — gentle arc"]},
@@ -425,21 +507,22 @@ const DAYS = [
     {name:"Standing calf raise",sets:"3×15–20",rest:45,rpe:"6–7",cues:["Both feet on floor or edge of step for full range","Rise onto toes as high as possible — full plantar flexion","3s slow negative — eccentric is where growth happens","Pause at full stretch at the bottom before next rep","Functional value: calf strength reduces ankle injury risk and improves walking economy long-term"]},
   ]},
   { name:"Friday — Upper B", emoji:"⚡", bg:"#EEEDFE", sub:"Pull + chest + arms + traps", exercises:[
-    {name:"Neutral-grip pull-up / lat pulldown",sets:"4×8–10",rest:90,rpe:"7–8",cues:["Full dead hang at bottom — shoulder blades rise fully","Drive elbows down and toward back pockets","Neutral grip — easiest on shoulder joint"]},
-    {name:"Single-arm DB row",sets:"3×10–12",rest:90,rpe:"7–8",cues:["TARGET: upper back (rhomboids, mid traps) — NOT lats","Same-side knee and hand on bench, back flat and neutral","Elbow flares out to 60–70° from torso — halfway between tucked and fully wide","Think: elbow pointing to the corner of the room behind you, not toward your hip","Lead with elbow going toward the ceiling — the DB is just a handle","At the top: squeeze shoulder blade toward spine — that retraction IS the movement","Feel it between your shoulder blades, not down the side of your torso","90° is too wide — stops there and shoulder impingement risk climbs","Small natural torso rotation at top is fine, exaggerating it is not"]},
-    {name:"Flat DB press",sets:"3×10–12",rest:90,rpe:"7–8",cues:["DBs allow free wrist rotation throughout — this is what removes the shoulder impingement the barbell causes","Elbows at 70° from your torso — not 90° (shoulder stress) and not tucked (loses chest activation)","Wrists stacked directly over elbows throughout — if wrists are bending back, grip is wrong","Lower until deep chest stretch — DBs can go slightly below chest level unlike a bar. Stop when you feel stretch in outer pec, not shoulder pinching","BOTTOM: pause 1 full second — no bounce, no stretch reflex. Forces genuine muscle control.","MIND-MUSCLE: aim for mid-to-outer pec (the thicker region toward your armpit) — NOT inner chest. Inner chest is what cable flies are for.","On the press: imagine pushing your hands toward each other slightly without moving them — activates more mid chest fibers","Drive up and very slightly together — a gentle arc, not straight up"]},
+    {name:"Neutral-grip pull-up / lat pulldown",sets:"4×8–10",rest:90,rpe:"7–8",cues:["Full dead hang at bottom — shoulder blades rise fully","Drive elbows down toward your pant pockets (the ones on your hips)","Neutral grip — easiest on shoulder joint","Feel the sides of your back doing the work, not your arms"]},
+    {name:"Single-arm DB row",sets:"3×10–12",rest:90,rpe:"7–8",cues:["TARGET: mid back near the spine, between your shoulder blades — NOT the sides of your back","Same-side knee and hand on bench, back flat and neutral","Elbow flares out to 60–70° from torso — halfway between tucked and fully wide","Think: elbow pointing to the corner of the room behind you, not toward your hip","Lead with elbow going toward the ceiling — the DB is just a handle","At the top: squeeze your shoulder blade toward your spine — that retraction IS the movement","Feel it between your shoulder blades, not down the side of your torso","90° is too wide — stops there and shoulder impingement risk climbs","Small natural torso rotation at top is fine, exaggerating it is not"]},
+    {name:"Weighted dips (chest-focused)",sets:"3–4×6–10",rest:120,rpe:"7–8",cues:["Bodyweight only for first 2–3 weeks while you establish the movement pattern","Lean torso FORWARD 30–45° throughout — this shifts emphasis from triceps to chest","Elbows track outward at 30–45° from your sides — not pinned tight (tricep emphasis), not flared to 90° (shoulder stress)","Lower with control until upper arms are parallel to the floor or slightly below — deep stretched position is the goal","Don't chase depth past comfortable control — the stretch matters more than how low you go","BOTTOM: feel the chest fully lengthened across its width and lower fibers","Press up by driving through chest and triceps — slight crunch forward at the top maintains chest tension","Don't fully lock out elbows if you want constant tension — near-lockout is fine","Once 3×10 at bodyweight feels solid, add weight via dip belt with a plate or DB held between feet","Add weight slowly: 2.5–5 lb per week, no faster","Stop the descent IMMEDIATELY if you feel any pinching at the front of the shoulder","Stretched-position loading on a compound chest movement — high-value exercise"]},
+    {name:"Flat DB press",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Now secondary to dips — slightly lower weight than before is appropriate since you're already fatigued","DBs allow free wrist rotation throughout — this is what removes the shoulder impingement the barbell causes","Elbows at 70° from your torso — not 90° (shoulder stress) and not tucked (loses chest activation)","Wrists stacked directly over elbows throughout — if wrists are bending back, grip is wrong","Lower until deep chest stretch — DBs can go slightly below chest level unlike a bar. Stop when you feel stretch in outer pec, not shoulder pinching","BOTTOM: pause 1 full second — no bounce, no stretch reflex. Forces genuine muscle control.","MIND-MUSCLE: aim for mid-to-outer pec (the thicker region toward your armpit) — NOT inner chest. Inner chest is what cable flies are for.","On the press: imagine pushing your hands toward each other slightly without moving them — activates more mid chest fibers","Drive up and very slightly together — a gentle arc, not straight up"]},
     {name:"Cable fly (mid pulley)",sets:"3×12–15",rest:75,rpe:"7–8",cues:["Mid pulley — chest height with arms out","Sweep inward, slightly supinate wrists at finish","1s pause with hands together"]},
-    {name:"DB shrug",sets:"3×15",rest:60,rpe:"6–7",cues:["Heavy DBs at sides, shrug straight up — not rolling","Hold top 2s, squeeze upper traps hard","Slow controlled descent"]},
-    {name:"Dead hang",sets:"3×20–30s",rest:60,rpe:"6",cues:["Full hang, arms straight, shoulders fully decompressed","Breathe slowly and relax — don't actively pull","Build toward 60s holds over 12 weeks","Spinal decompression + grip strength — high longevity value"]},
-    {name:"Cable curl (straight bar)",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Shoulder-width underhand, elbows fixed at sides","1s squeeze at peak contraction"]},
+    {name:"DB shrug (leaning)",sets:"3×15",rest:60,rpe:"6–7",cues:["Bench at 60-65°, chest against pad","Squeeze shoulder blades together and slightly DOWN — pinch and pull down","Hold 2s at peak contraction, slow controlled return","Targets mid/lower part of trap muscle for posture"]},
+    {name:"Cable curl (straight bar)",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Shoulder-width underhand, elbows fixed at sides","1s squeeze at peak contraction","W-bar / EZ-bar attachment is equivalent and easier on wrists"]},
     {name:"Cross-body cable curl",sets:"3×12 each",rest:60,rpe:"7–8",cues:["Single arm cable at low pulley, stand sideways","Curl across body toward opposite shoulder","Cross-body targets long head for outer sweep","Supinate palm upward at top"]},
     {name:"Overhead cable tricep extension",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Face away from cable, elbows at ears","Let rope pull hands fully behind head — stretch is the point","Full lockout, keep elbows from flaring"]},
     {name:"Reverse cable fly",sets:"3×15",rest:60,rpe:"6–7",cues:["Cable crossover, cross cables, grab opposite handles","Fly backward — squeeze rear delts at end range","Counters desk posture — pulls shoulders back"]},
+    {name:"Dead hang",sets:"3×20–30s",rest:60,rpe:"6",cues:["Placed at the END of the session — grip is fresh-enough for the hold but won't compromise curl work earlier","Full hang, arms straight, shoulders fully decompressed","Breathe slowly and relax — don't actively pull","Build toward 60s holds over 12 weeks","Always step down — never let go and drop","Spinal decompression + grip strength — high longevity value","PAUSED until PT clears the recompression symptom — replace with hollow body hang (legs at hip height) if you want to keep something in this slot"]},
   ]},
   { name:"Saturday — Lower B", emoji:"🏋️", bg:"#FAECE7", sub:"Quad, core & glute isolation", exercises:[
     {name:"Bulgarian split squat (DB)",sets:"4×10 each",rest:90,rpe:"7–8",cues:["Rear foot elevated, front foot far enough for vertical shin","Lower straight down — not forward","Drive through front heel — quad and glute do the work","First few sessions feel unstable — lighter weight until solid"]},
     {name:"Heel-elevated back squat",sets:"3×8–12",rest:120,rpe:"7–8",cues:["Heels on a small ramp or 1–2 inch of plates — this compensates for ankle mobility limitation","Bar on upper traps, brace hard before unracking","Heel elevation lets you stay UPRIGHT — this is the whole point, it keeps load off your lower back","Sit straight down between your heels, chest tall, knees track forward over toes","If your back rounds or pitches forward, the elevation isn't high enough — add more","Loadable with the full barbell so your legs are the limit, not your grip","If this still bothers your back, stop and switch to single-leg work only — tell no one you need to push through it"]},
-    {name:"Barbell sumo deadlift",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Wide stance — feet outside shoulder width, toes out 30–45°","Bar over mid-foot, hands inside knees","Hinge and drop hips to grip bar — chest up, back flat","Drive floor away, squeeze inner thighs and glutes at top","Intentionally different pattern from Wednesday — inner thigh and glute med focus"]},
+    {name:"Barbell sumo deadlift",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Wide stance — feet outside shoulder width, toes out 30–45°","Bar over mid-foot, hands inside knees","Hinge and drop hips to grip bar — chest up, back flat","Drive floor away, squeeze your inner thighs and butt at the top","Intentionally different pattern from Wednesday — biases inner thighs and the outside of your butt rather than the back of your thighs"]},
     {name:"Back extension (Backstrom)",sets:"Per stage",rest:90,rpe:"varies",cues:["Same stage as Wednesday — progress both together","Stage 3: 3s down 2s up, slight dip at bottom intentional","Never push through sharp or radiating pain"]},
     {name:"Pallof press (cable)",sets:"3×12 each",rest:60,rpe:"6–7",cues:["Cable at chest height, stand sideways to machine","Press straight out, resist the rotation — hold 2s","Zero torso rotation is the entire exercise"]},
     {name:"Dead bug",sets:"3×10 each",rest:60,rpe:"6–7",cues:["Lower back pressed flat to floor throughout","Opposite arm and leg extend — 3s out, 3s back","Exhale as you extend — activates deep core stabilizers","If back lifts, reduce range of motion"]},
@@ -918,10 +1001,12 @@ function renderDay(c) {
     const lg = S.logs[lk];
     const mw = lg ? Math.max(...lg.sets.map(s => parseFloat(s.w)||0)) : null;
     const isNew = ex.phase;
+    const tempo = getTempoFor(ex.name);
+    const tempoStr = tempo ? ` · Tempo ${tempo}` : '';
     h += `<div class="er">
       <button class="${lg?'elogged':'elog'}" onclick="S.ex=${i};S.sets=null;S.note='';render()">${lg?'✓ Edit':'Log'}</button>
       <div class="en">${ex.name}${isNew?`<span class="badge bg-amber">${ex.phase}</span>`:''}</div>
-      <div class="es">${ex.sets} · Rest ${ex.rest}s · RPE ${ex.rpe}${mw?` · Last: <strong>${mw} lbs</strong>`:''}</div>
+      <div class="es">${ex.sets} · Rest ${ex.rest}s · RPE ${ex.rpe}${tempoStr}${mw?` · Last: <strong>${mw} lbs</strong>`:''}</div>
     </div>`;
   });
   h += `</div>`;
@@ -988,8 +1073,20 @@ function renderExLog(c) {
   let h = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
     <button onclick="S.ex=null;S.sets=null;S.note='';render()" style="background:none;border:none;cursor:pointer;color:var(--t2);font-size:26px;padding:0;line-height:1;">←</button>
     <div style="flex:1;"><div class="pt" style="font-size:17px;">${ex.name}</div>
-    <div class="ps">Week ${S.week} · ${ex.sets} · RPE ${ex.rpe}</div></div>
+    <div class="ps">Week ${S.week} · ${ex.sets} · RPE ${ex.rpe}${getTempoFor(ex.name)?' · Tempo '+getTempoFor(ex.name):''}</div></div>
   </div>`;
+
+  // Tempo guide card — explains the notation for this specific exercise
+  const exTempo = getTempoFor(ex.name);
+  if(exTempo && exTempo !== 'Hold' && exTempo !== 'Stage-based') {
+    const parts = exTempo.split('-');
+    const labels = ['lower', 'stretch hold', 'lift', 'peak squeeze'];
+    let tempoBreakdown = parts.map((s, i) => `<strong>${s}s</strong> ${labels[i]}`).join(' → ');
+    h += `<div class="card cp" style="margin-bottom:10px;background:#FFF8E5;border-color:rgba(133,79,11,0.25);">
+      <div style="font-size:11px;font-weight:700;color:#854F0B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Tempo: ${exTempo}</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.6;">${tempoBreakdown}</div>
+    </div>`;
+  }
 
   // Overload analysis — compare current logged session (if any) vs prev (keep at top above feel/cues)
   if(existing && prev) {
@@ -1013,12 +1110,7 @@ function renderExLog(c) {
     </div>`;
   }
 
-  // Last-known-weight reference (from before a cycle restart) — small banner
-  if(!prev && lastKnown) {
-    h += `<div style="background:var(--amber-lt);border-radius:var(--rs);padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--amber-dk,#854F0B);line-height:1.5;">
-      <strong>Previous cycle:</strong> ${lastKnown.w} lbs × ${lastKnown.r} reps${lastKnown.rpe?' @ RPE '+lastKnown.rpe:''}. Use as a starting reference.
-    </div>`;
-  }
+  // Last-known-weight reference banner removed — now shown inline next to each set's input row
 
   h += `<div class="card cp" style="margin-bottom:10px;"><div style="font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Form cues</div>`;
   ex.cues.forEach(cu => { h += `<div style="font-size:12px;color:var(--t2);padding:3px 0;line-height:1.5;">· ${cu}</div>`; });
@@ -1026,29 +1118,32 @@ function renderExLog(c) {
 
   h += `<div class="card" style="margin-bottom:10px;">
     <div style="padding:10px 16px 6px;border-bottom:0.5px solid var(--bdr2);">
-      <div style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 28px;gap:5px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;">
-        <span></span><span style="text-align:center;">LBS</span><span style="text-align:center;">REPS</span><span style="text-align:center;">RPE</span><span></span>
+      <div style="display:grid;grid-template-columns:40px 1.1fr 1fr 1fr 1fr 28px;gap:5px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;">
+        <span></span><span style="text-align:center;color:var(--blue);">LAST</span><span style="text-align:center;">LBS</span><span style="text-align:center;">REPS</span><span style="text-align:center;">RPE</span><span></span>
       </div>
     </div>
     <div style="padding:0 16px;">`;
   S.sets.forEach((s,i) => {
-    // Inline "last time" reference per set row
-    let lastRef = '';
+    // Determine the previous reference for this specific set
+    let prevCell = '<div class="prev-cell-empty">—</div>';
     if(prev && prev.sets[i]) {
       const ps = prev.sets[i];
-      lastRef = `<div style="grid-column:2/4;font-size:10.5px;color:var(--blue-dk);padding:2px 0 6px;margin-top:-2px;">Last: <strong>${ps.w||'—'} × ${ps.r||'—'}</strong>${ps.rpe?' @ '+ps.rpe:''}</div>`;
+      const w = ps.w || '—';
+      const r = ps.r || '—';
+      prevCell = `<div class="prev-cell">${w}×${r}</div>`;
     } else if(!prev && lastKnown && i === 0) {
-      lastRef = `<div style="grid-column:2/4;font-size:10.5px;color:var(--amber-dk,#854F0B);padding:2px 0 6px;margin-top:-2px;">Last cycle: <strong>${lastKnown.w} × ${lastKnown.r}</strong></div>`;
+      prevCell = `<div class="prev-cell-amber">${lastKnown.w}×${lastKnown.r}</div>`;
     }
     h += `<div class="set-row">
       <span class="sn">Set ${i+1}</span>
       <div class="si">
+        ${prevCell}
         <input type="number" inputmode="decimal" placeholder="lbs" value="${s.w}" min="0" step="2.5" onchange="S.sets[${i}].w=this.value">
         <input type="number" inputmode="numeric" placeholder="reps" value="${s.r}" min="1" step="1" onchange="S.sets[${i}].r=this.value">
         <input type="number" inputmode="decimal" placeholder="RPE" value="${s.rpe}" min="5" max="10" step="0.5" onchange="S.sets[${i}].rpe=this.value">
       </div>
       <button class="sdel" onclick="delSet(${i})">×</button>
-    </div>${lastRef}`;
+    </div>`;
   });
   h += `</div>
     <div style="padding:10px 16px;border-top:0.5px solid var(--bdr2);display:flex;gap:8px;flex-wrap:wrap;">
