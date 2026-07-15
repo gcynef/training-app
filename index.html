@@ -272,8 +272,8 @@ const FOCUS_MAP = {
 
   // CHEST / PUSH
   "Incline DB press": { target:"Upper chest (just below your collarbones)", cue:"Imagine ropes running from your collarbones to your hands. Drive the DBs up AND slightly together so they nearly touch at the top — force a hard squeeze in the upper chest below your collarbones for 1 second. Think 'press through your armpits,' not through your hands." },
-  "Low-to-high cable fly": { target:"Upper chest (just below your collarbones)", cue:"Scoop water up toward your own face from below your hips. Hands meet at chin or upper-chest level (not at your sternum). At the top, supinate — palms turning up toward the ceiling, thumbs pointing out to opposite walls. Feel the upper chest just below your collarbones cramping at the squeeze." },
-  "High-to-low cable fly": { target:"Lower chest (above your ribcage)", cue:"Squeeze water out of a sponge held in front of your hips. At the bottom, pronate — palms turning back toward your butt, thumbs pointing inward and slightly behind you. Feel the lower chest contracting along where it meets your ribcage." },
+  "Low-to-high cable fly": { target:"Upper chest (just below your collarbones)", cue:"Scoop water up toward your own face from below your hips. Slight 10–15° forward lean at the hips aligns the cable pull with your upper chest fiber direction — perfectly upright reduces activation. Hands meet at chin or upper-chest level (not at your sternum). At the top, supinate — palms turning up toward the ceiling, thumbs pointing out to opposite walls. Feel the upper chest just below your collarbones cramping at the squeeze." },
+  "High-to-low cable fly": { target:"Lower chest (above your ribcage)", cue:"Squeeze water out of a sponge held in front of your hips. The peak squeeze is at the BOTTOM where your hands meet at hip level — hold this contraction for a full second on every rep. At the bottom, pronate — palms turning back toward your butt, thumbs pointing inward and slightly behind you. Feel the lower chest contracting along where it meets your ribcage — that's the peak contraction position for this exercise." },
   "Cable fly (mid pulley)": { target:"Middle of your chest (center mass)", cue:"The stretch at the start is the whole point — let your arms travel back behind your torso line. As your hands meet at chest level, slightly supinate (palms turning up toward your face). Feel the broad middle of your chest contracting horizontally across the center." },
   "Flat DB press": { target:"Middle of your chest (center and outer mass)", cue:"Drive the DBs up AND together — they should nearly touch at the top with a hard 1-second chest squeeze. Think 'press through your armpits.' Feel the broad central chest pulling your hands toward each other." },
   "Weighted dips (chest-focused)": { target:"Outer and lower chest (stretched compound)", cue:"The deep stretched bottom position is the entire point — feel the chest lengthened across its outer edges and lower portion (where it meets your ribcage) as your upper arms drop parallel to the floor. Forward torso lean keeps the chest doing the work (not triceps). On the press up, picture the chest contracting to bring your arms back together while the back of your upper arms locks out." },
@@ -283,6 +283,7 @@ const FOCUS_MAP = {
   "Cable tricep pushdown (rope)": { target:"Outside back of your upper arm (the 'horseshoe')", cue:"Elbows pinned to your sides — they don't move. Drive your hands down and APART at the bottom, flaring the rope ends out to your hips. Feel the outside of the back of your upper arm contracting hard at full lockout." },
   "Overhead DB tricep extension": { target:"Back of your upper arm (long head — for thickness)", cue:"Elbows point at the ceiling and stay there. The stretch when your forearms touch your biceps is the point — that lengthened position is where the back of your upper arm grows in thickness. Press straight up through full lockout." },
   "Standing cable overhead tricep extension": { target:"Back of your upper arm (for thickness)", cue:"The deep stretch when your forearms touch your biceps behind your head is the entire point — that loaded lengthened position is where the back of your upper arm grows in thickness. Elbows pinned at your ears, pointing forward — they don't move. As you press to full lockout, spread the rope ends apart toward your hips. Feel the back of your upper arms working from full stretch through to hard lockout contraction." },
+  "EZ-bar cable skull crusher": { target:"Back of your upper arm (long head — for thickness)", cue:"At the bottom position with the bar near the bench behind your head, feel the deep stretch in the back of your upper arms — this loaded stretched position is where the long head grows in thickness. As you extend your elbows to bring the bar back up over your forehead, feel the back of your upper arms shortening to do the work. Upper arms stay perpendicular to the floor throughout — they don't move. The bar and forearms are doing the visible movement; the back of your upper arms is doing the actual work." },
   "Overhead cable tricep extension": { target:"Back of your upper arm (for thickness)", cue:"Let the rope pull your hands fully behind your head — that deep stretch is the entire purpose. Elbows at your ears, pointing forward, never flaring out. Press to full lockout, feel the back of your upper arms working from stretched bottom to hard contraction." },
   "Reverse cable fly": { target:"Back of your shoulders (for posture correction)", cue:"Squeeze your shoulder blades together as you fly back. Feel the back of your shoulders contracting. This is the muscle that pulls your shoulders back and fixes desk posture." },
 
@@ -379,6 +380,7 @@ const TEMPO_MAP = {
   "Cable tricep pushdown (rope)": "3-0-1-1",
   "Overhead DB tricep extension": "3-1-1-1",
   "Standing cable overhead tricep extension": "3-1-1-1",
+  "EZ-bar cable skull crusher": "3-1-1-1",
   "Overhead cable tricep extension": "3-1-1-1",
 
   // Traps & calves
@@ -433,9 +435,11 @@ function getExercisesForWeek(dayIdx, week) {
   if(dayIdx === 2) { // Wednesday Lower A
     const rdlIdx = base.findIndex(e => e.name === "Romanian deadlift (DB)");
     if(week <= 6 && rdlIdx !== -1) {
-      // Weeks 1-6: nordic curl negatives (was weeks 1-2, extended to weeks 1-6)
-      base[rdlIdx] = { name:"Nordic curl negative (or lying hamstring curl)", sets:"3×6–8", rest:90, rpe:"6–7", phase:"Wks 1–6",
-        cues:["Anchor feet under rack or have a partner hold","Lower yourself as slowly as possible — 4–6s down","Catch yourself at the bottom, push back up with hands","Goal is controlling the negative — not the concentric","Week 7+: replaced by DB RDL for greater hamstring load","Timeline pushed back to allow mobility foundation to establish first"] };
+      // Weeks 1-6: nordic curl negatives — 2 sets, positioned early while hamstrings are fresh
+      const nordic = { name:"Nordic curl negative (or lying hamstring curl)", sets:"2×6–8", rest:90, rpe:"6–7", phase:"Wks 1–6",
+        cues:["POSITIONED 2ND in the session — hamstrings must be fresh for safe, productive eccentric work","2 sets (reduced from 3): the harder 20° angle + rigid-body form delivers more stimulus per set, and reduced volume lets hamstrings recover before Saturday","Anchor feet under rack or on your adjustable-angle setup","Body rigid from knees to head — squeeze your butt and brace your core, NO bending at the hips","Lower yourself as slowly as possible — 4–6s down","Catch yourself at the bottom, push back up with hands","Goal is controlling the negative — not the concentric","Week 7+: replaced by DB RDL for greater hamstring load"] };
+      base.splice(rdlIdx, 1);      // remove from RDL slot
+      base.splice(1, 0, nordic);   // insert at position 2, right after hip thrust
     } else if(week >= 9 && rdlIdx !== -1) {
       // Week 9+ (was Week 5): barbell RDL
       base[rdlIdx] = { ...base[rdlIdx], name:"Romanian deadlift (barbell)", phase:"Week 9+",
@@ -491,12 +495,12 @@ const DAYS = [
   ]},
   { name:"Tuesday — Push", emoji:"🔥", bg:"#FAEEDA", sub:"Chest, shoulders, triceps", exercises:[
     {name:"Incline DB press",sets:"4×8–10",rest:120,rpe:"7–8",cues:["Bench at 30–45° — higher shifts load to shoulders","Elbows at 70° from torso, not 90°","Full chest stretch at bottom, brief pause","Drive up and slightly together — gentle arc"]},
-    {name:"Low-to-high cable fly",sets:"3×12–15",rest:75,rpe:"7–8",cues:["Cable at ankle/floor level","Sweep upward and inward — like hugging a barrel","Hands meet at chest height, same elbow bend throughout","Pause and squeeze at top"]},
-    {name:"Kneeling ring fly",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Set rings at hip height initially (lower over weeks as you adapt)","Kneel facing forward, hands on rings, arms extended","Walk knees back to set difficulty — closer to vertical is easier, more horizontal is harder","Lower body forward by spreading rings out to your sides — small elbow bend (not straight arms)","Stretch is the entire point — let the rings drift apart as far as your shoulders comfortably allow","Pull rings back together with your chest, hands meet in front of your sternum","Weeks 1–2: stay upright, get comfortable with the movement, focus on chest stretch","Week 3+: walk knees back gradually to increase load","Stop the descent immediately if you feel any sharp shoulder sensation — this is a slow-progress movement"]},
+    {name:"Low-to-high cable fly",sets:"3×12–15",rest:75,rpe:"7–8",cues:["Cable at ankle/floor level","Slight forward lean — 10–15° from vertical at the hips (NOT bent over, just a small tilt forward)","Standing upright reduces upper chest activation; the slight lean aligns the cable pull with your upper chest fiber direction","Sweep upward and inward — like scooping water up toward your face","Hands meet at chin or upper-chest level (not at your sternum), same elbow bend throughout","Supinate at the top — palms turning up, thumbs pointing out to opposite walls","1s pause with hard squeeze at top"]},
+    {name:"High-to-low cable fly",sets:"3×12–15",rest:75,rpe:"7–8",cues:["Cable at HIGHEST pulley setting","Stand (don't sit — line of pull degrades sitting), slight forward lean 10–15° at the hips","Staggered stance for stability","Start with arms extended out to your sides at shoulder height or just above","Sweep DOWN and inward in a wide arc — hands meet at hip or upper thigh level","Pronate at the bottom — palms turning back toward your butt, thumbs pointing inward and slightly behind","Lock the soft elbow bend (10–15°) — don't let elbows extend during the rep","PEAK SQUEEZE IS AT THE BOTTOM — hold a hard 1-second squeeze with hands meeting at hip level. This is where the lower chest is most contracted. Don't skip this hold.","Picture squeezing water out of a sponge held between your hands at your hips","Feel the lower chest cramping along where it meets your ribcage — that cramping sensation IS the peak contraction","Controlled return through full stretch at shoulder height","Subbed in for kneeling ring fly while shoulder recovers — ring fly's deep stretch position was bothering shoulder"]},
     {name:"Seated DB shoulder press",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Neutral or semi-pronated grip","Drive straight overhead, DBs finish close together","Keep elbows at 70° — not flared to 90°"]},
     {name:"Cable lateral raise",sets:"3×15–20",rest:60,rpe:"6–7",cues:["Cable at ankle height, stand sideways","Lead with elbow — raise to shoulder height only","3s slow negative — where cables beat dumbbells"]},
     {name:"Cable tricep pushdown (rope)",sets:"4×12–15",rest:60,rpe:"7–8",cues:["Elbows pinned to sides — they must not move","Drive down and flare rope apart at bottom","Full lockout, squeeze 1s — lateral head activation"]},
-    {name:"Standing cable overhead tricep extension",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Pulley at lowest setting, rope attachment","Face AWAY from the cable stack, walk a few steps forward, slight staggered stance","Bring rope behind your head — rope rests at base of skull/upper traps","Elbows point FORWARD and slightly inward, upper arms close to your ears","Slight forward lean from the hips — chest tall, core braced","Extend forward and slightly up — hands travel from behind your head to in front of your face","At lockout, ROPE ENDS SPREAD APART toward your hips — this activates the lateral head","Control the eccentric — let forearms touch biceps before each press","2-3 sec down, full stretch, deliberate press up","Don't let elbows flare out as you fatigue — keep them tracking forward","Cable maintains constant tension top to bottom — unlike DB, which goes slack at lockout"]},
+    {name:"EZ-bar cable skull crusher",sets:"3×10–12",rest:75,rpe:"7–8",cues:["Pulley at lowest setting, EZ-bar attachment","Position a flat bench so your head is 6–12 inches from the cable stack","Lie on your back, head at the end of the bench closest to the cable","Take the EZ-bar with the cable coming over your head from behind","Starting position: arms extended straight up so the bar is over your forehead — cable should be taut, no slack","Keep upper arms perpendicular to the floor — they don't move during the rep","Bend ONLY at the elbows — bar travels back over your forehead, past your head, toward the bench behind you","BOTTOM: bar near the bench behind your head — feel deep stretch in the back of your upper arms","Extend at the elbows back to starting position — but stop JUST SHORT of fully locked out to keep constant tension","Subbed in for overhead cable extension — the cable EZ-bar setup gives equivalent long-head stretched-position loading without the shoulder strain","Start lighter than you think — constant cable tension means you can't muscle through stuck points","Use the EZ-bar specifically (not straight bar) — angled grips are much easier on wrists and inner elbows"]},
   ]},
   { name:"Wednesday — Lower A", emoji:"🦵", bg:"#E1F5EE", sub:"Glute, hamstring & quad", exercises:[
     {name:"Hip thrust (barbell)",sets:"4×10–12",rest:90,rpe:"7–8",cues:["Shoulder blades on bench edge, bar in hip crease — pad it","Feet flat, shoulder-width, shins vertical at top","Drive through both heels — hips to ceiling not lower back","Squeeze glutes hard, hold 1–2s, pelvis slightly tucked","Lower back must NOT hyperextend at top"]},
@@ -515,14 +519,14 @@ const DAYS = [
     {name:"DB shrug (leaning)",sets:"3×15",rest:60,rpe:"6–7",cues:["Bench at 60-65°, chest against pad","Squeeze shoulder blades together and slightly DOWN — pinch and pull down","Hold 2s at peak contraction, slow controlled return","Targets mid/lower part of trap muscle for posture"]},
     {name:"Cable curl (straight bar)",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Shoulder-width underhand, elbows fixed at sides","1s squeeze at peak contraction","W-bar / EZ-bar attachment is equivalent and easier on wrists"]},
     {name:"Cross-body cable curl",sets:"3×12 each",rest:60,rpe:"7–8",cues:["Single arm cable at low pulley, stand sideways","Curl across body toward opposite shoulder","Cross-body targets long head for outer sweep","Supinate palm upward at top"]},
-    {name:"Overhead cable tricep extension",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Face away from cable, elbows at ears","Let rope pull hands fully behind head — stretch is the point","Full lockout, keep elbows from flaring"]},
+    {name:"EZ-bar cable skull crusher",sets:"3×10–12",rest:75,rpe:"7–8",cues:["Same setup as Tuesday — flat bench positioned with head 6–12 inches from cable stack, EZ-bar on lowest pulley","Arms extended straight up at start, bar over forehead, cable taut","Upper arms perpendicular to floor — they stay there throughout","Bend only at elbows, bar travels back and down behind your head","Deep stretch at the bottom, controlled extension back up to just short of full lockout","Constant cable tension throughout the range — no stuck points, no resistance drop in the stretch"]},
     {name:"Reverse cable fly",sets:"3×15",rest:60,rpe:"6–7",cues:["Cable crossover, cross cables, grab opposite handles","Fly backward — squeeze rear delts at end range","Counters desk posture — pulls shoulders back"]},
     {name:"Dead hang",sets:"3×20–30s",rest:60,rpe:"6",cues:["Placed at the END of the session — grip is fresh-enough for the hold but won't compromise curl work earlier","Full hang, arms straight, shoulders fully decompressed","Breathe slowly and relax — don't actively pull","Build toward 60s holds over 12 weeks","Always step down — never let go and drop","Spinal decompression + grip strength — high longevity value","PAUSED until PT clears the recompression symptom — replace with hollow body hang (legs at hip height) if you want to keep something in this slot"]},
   ]},
   { name:"Saturday — Lower B", emoji:"🏋️", bg:"#FAECE7", sub:"Quad, core & glute isolation", exercises:[
     {name:"Bulgarian split squat (DB)",sets:"4×10 each",rest:90,rpe:"7–8",cues:["Rear foot elevated, front foot far enough for vertical shin","Lower straight down — not forward","Drive through front heel — quad and glute do the work","First few sessions feel unstable — lighter weight until solid"]},
     {name:"Heel-elevated back squat",sets:"3×8–12",rest:120,rpe:"7–8",cues:["Heels on a small ramp or 1–2 inch of plates — this compensates for ankle mobility limitation","Bar on upper traps, brace hard before unracking","Heel elevation lets you stay UPRIGHT — this is the whole point, it keeps load off your lower back","Sit straight down between your heels, chest tall, knees track forward over toes","If your back rounds or pitches forward, the elevation isn't high enough — add more","Loadable with the full barbell so your legs are the limit, not your grip","If this still bothers your back, stop and switch to single-leg work only — tell no one you need to push through it"]},
-    {name:"Barbell sumo deadlift",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Wide stance — feet outside shoulder width, toes out 30–45°","Bar over mid-foot, hands inside knees","Hinge and drop hips to grip bar — chest up, back flat","Drive floor away, squeeze your inner thighs and butt at the top","Intentionally different pattern from Wednesday — biases inner thighs and the outside of your butt rather than the back of your thighs"]},
+    {name:"Barbell sumo deadlift",sets:"3×10–12",rest:90,rpe:"7–8",cues:["STANCE TEST (next 2 sessions): narrow your stance 3–4 inches from before, reduce weight ~25%, and assess the right-knee pressure honestly","If pressure resolves with the narrower stance → rebuild weight over 2–3 weeks and sumo stays","If pressure persists after 2 honest attempts → replace this slot with hip thrust and tell Claude","Stance: feet moderately outside shoulder width (NOT maximal wide), toes out 30–40°","Knees track OUT over toes the entire pull — do not let them drift inward on the way up","Bar over mid-foot, hands inside knees","Hinge and drop hips to grip bar — chest up, back flat","Drive floor away, squeeze your inner thighs and butt at the top","Control the descent (2–3s) — don't emphasize a slow eccentric, the work is on the way UP","Intentionally different pattern from Wednesday — biases inner thighs and the outside of your butt"]},
     {name:"Back extension (Backstrom)",sets:"Per stage",rest:90,rpe:"varies",cues:["Same stage as Wednesday — progress both together","Stage 3: 3s down 2s up, slight dip at bottom intentional","Never push through sharp or radiating pain"]},
     {name:"Pallof press (cable)",sets:"3×12 each",rest:60,rpe:"6–7",cues:["Cable at chest height, stand sideways to machine","Press straight out, resist the rotation — hold 2s","Zero torso rotation is the entire exercise"]},
     {name:"Dead bug",sets:"3×10 each",rest:60,rpe:"6–7",cues:["Lower back pressed flat to floor throughout","Opposite arm and leg extend — 3s out, 3s back","Exhale as you extend — activates deep core stabilizers","If back lifts, reduce range of motion"]},
@@ -1130,9 +1134,11 @@ function renderExLog(c) {
       const ps = prev.sets[i];
       const w = ps.w || '—';
       const r = ps.r || '—';
-      prevCell = `<div class="prev-cell">${w}×${r}</div>`;
+      const rpeStr = ps.rpe ? `<span style="font-size:10px;opacity:0.85;">@${ps.rpe}</span>` : '';
+      prevCell = `<div class="prev-cell" style="flex-direction:column;gap:0;">${w}×${r}${rpeStr}</div>`;
     } else if(!prev && lastKnown && i === 0) {
-      prevCell = `<div class="prev-cell-amber">${lastKnown.w}×${lastKnown.r}</div>`;
+      const rpeStr = lastKnown.rpe ? `<span style="font-size:10px;opacity:0.85;">@${lastKnown.rpe}</span>` : '';
+      prevCell = `<div class="prev-cell-amber" style="flex-direction:column;gap:0;">${lastKnown.w}×${lastKnown.r}${rpeStr}</div>`;
     }
     h += `<div class="set-row">
       <span class="sn">Set ${i+1}</span>
@@ -1154,6 +1160,14 @@ function renderExLog(c) {
       </button>
     </div>
   </div>`;
+
+  // Show last week's note as a reference so insights carry forward
+  if(prev && prev.note && prev.note.trim()) {
+    h += `<div style="background:var(--blue-lt);border-radius:var(--rs);padding:10px 12px;margin-bottom:8px;">
+      <div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Your note from Week ${prevWeek}</div>
+      <div style="font-size:12.5px;color:var(--t2);line-height:1.5;">${prev.note}</div>
+    </div>`;
+  }
 
   h += `<div class="field"><label>Notes</label>
     <textarea rows="2" placeholder="How did it feel? Pain? Weight to try next time?" oninput="S.note=this.value" style="resize:none;">${S.note||''}</textarea>
@@ -1721,7 +1735,7 @@ function deletePhoto(idx){
 // ── TOOLS ─────────────────────────────────────────────────────────────────────
 function renderTools(c){
   let h=`<div class="ph"><div class="pt">Tools</div></div>`;
-  h+=`<div class="tabs" style="overflow-x:auto;flex-wrap:nowrap;"><button class="tab active" onclick="tTab('1rm',this)">1RM</button><button class="tab" onclick="tTab('grocery',this)">Grocery</button><button class="tab" onclick="tTab('prog',this)">Map</button><button class="tab" onclick="tTab('meals',this)">Meals</button><button class="tab" onclick="tTab('backup',this)">Backup</button></div>`;
+  h+=`<div class="tabs" style="overflow-x:auto;flex-wrap:nowrap;"><button class="tab active" onclick="tTab('1rm',this)">1RM</button><button class="tab" onclick="tTab('grocery',this)">Grocery</button><button class="tab" onclick="tTab('prog',this)">Map</button><button class="tab" onclick="tTab('meals',this)">Meals</button><button class="tab" onclick="tTab('travel',this)">Travel</button><button class="tab" onclick="tTab('backup',this)">Backup</button></div>`;
 
   h+=`<div id="tt-1rm"><div class="sl">Estimate your 1 rep max</div><div class="card cp">
     <div class="r2">
@@ -1736,6 +1750,36 @@ function renderTools(c){
   </div></div>`;
 
   h+=`<div id="tt-grocery" style="display:none;">${renderGroceryHTML()}</div>`;
+
+  // Travel / vacation maintenance program
+  h+=`<div id="tt-travel" style="display:none;">
+    <div class="sl">Vacation maintenance — 7 days</div>
+    <div class="card cp" style="margin-bottom:10px;background:var(--green-lt);border-color:rgba(0,120,60,0.2);">
+      <div style="font-size:13px;line-height:1.6;color:var(--t1);"><strong>The honest truth:</strong> 7 days off costs you zero muscle — detectable loss doesn't start until 2–3 weeks of inactivity. Treat this week as your planned deload: fatigue clears, the knee and shoulder rest, and you return to Week 3 stronger. This routine exists to keep the habit alive and make the return seamless, not to save your gains (they're safe).</div>
+    </div>
+    <div class="card cp" style="margin-bottom:10px;">
+      <div style="font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Non-negotiables (matter more than the workouts)</div>
+      <div style="font-size:13px;line-height:1.7;color:var(--t1);">
+      • <strong>Protein ~140–160g/day</strong> — the #1 muscle-preservation lever. Protein at every meal; pack protein powder if convenient.<br>
+      • <strong>Eat at maintenance, don't cut</strong> — this doubles as the diet break we planned. Enjoy the food.<br>
+      • <strong>Walk a lot</strong> — vacation steps are your cardio.<br>
+      • <strong>Sleep</strong> — a week of good sleep does more for your next block than any hotel workout.</div>
+    </div>
+    <div class="card cp" style="margin-bottom:10px;">
+      <div style="font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">3 sessions · ~20–25 min · Days 2, 4, 6</div>
+      <div style="font-size:13px;line-height:1.8;color:var(--t1);">
+      <strong>1. Push-ups</strong> — 3 sets, 2–3 reps shy of failure. 3s descent, pause at bottom. Elevate feet if too easy.<br>
+      <strong>2. Single-arm band row / backpack row</strong> — 3×12–15 per side. Squeeze shoulder blade to spine, 1s hold. Load a backpack with books if no bands.<br>
+      <strong>3. Bulgarian split squat (bodyweight, slow)</strong> — 3×10–12 per leg off any chair/bed. 3s down, 1s pause. You know how hard strict tempo makes this.<br>
+      <strong>4. Single-leg RDL (bodyweight)</strong> — 2×10 per leg, slow. Feel the back-of-thigh stretch.<br>
+      <strong>5. Pike push-up or band overhead press</strong> — 2×8–12.<br>
+      <strong>6. Band curls + band pushdowns or bench dips</strong> — 2 sets each, optional finisher.</div>
+    </div>
+    <div class="card cp">
+      <div style="font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Pack list</div>
+      <div style="font-size:13px;line-height:1.7;color:var(--t1);">One set of resistance bands with handles (fits in a shoe). Everything above also works bodyweight-only. Optional: ziplock of protein powder + shaker.</div>
+    </div>
+  </div>`;
 
   // Program map
   h+=`<div id="tt-prog" style="display:none;"><div class="sl">12-week program map</div>`;
@@ -1841,7 +1885,7 @@ function confirmCycleRestart() {
 
 function tTab(t,btn){
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  ['1rm','grocery','prog','meals','backup'].forEach(id=>document.getElementById(`tt-${id}`).style.display=id===t?'':'none');
+  ['1rm','grocery','prog','meals','travel','backup'].forEach(id=>document.getElementById(`tt-${id}`).style.display=id===t?'':'none');
 }
 
 const MEALS = {
