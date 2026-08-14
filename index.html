@@ -330,68 +330,64 @@ function getFocusFor(exName) {
 // Tempo notation: eccentric - stretch hold - concentric - peak contraction hold (seconds)
 // Always reads: down → stretch hold → up → contract hold
 const TEMPO_MAP = {
-  // Compound presses
-  "Incline DB press": "3-1-1-1",
-  "Flat DB press": "3-1-1-1",
-  "Seated DB shoulder press": "3-1-1-1",
-  "Weighted dips (chest-focused)": "3-1-1-1",
+  // Notation: eccentric - stretch hold - concentric - peak contraction hold (seconds)
+  // CYCLE 2 REVISION: peak-contraction holds removed everywhere the squeeze is not
+  // the point of the exercise. Stretch holds retained. Primary presses run normal
+  // cadence so load can actually climb.
 
-  // Compound lower
-  "Hip thrust (barbell)": "2-0-1-2",
-  "Zercher squat": "3-1-1-0",
-  "Trap bar deadlift": "2-0-1-0",
-  "Conventional deadlift": "2-0-1-0",
-  "Romanian deadlift (DB)": "3-1-1-1",
-  "Romanian deadlift (barbell)": "3-1-1-1",
-  "Nordic curl negative (or lying hamstring curl)": "5-0-1-0",
-  "Bulgarian split squat (DB)": "3-1-1-0",
-  "Heel-elevated back squat": "3-1-1-0",
-  "Barbell sumo deadlift": "2-0-1-0",
-  "Spanish squat": "3-1-2-1",
+  // Primary presses — normal cadence, this is where load must progress
+  "Incline DB press": "2-0-1-0",
+  "Flat DB press": "2-1-1-0",
+  "Seated DB shoulder press": "2-0-1-0",
+  "Weighted dips (chest-focused)": "2-1-1-0",
 
-  // Pulldowns
-  "Cable lat pulldown (wide)": "2-0-1-1",
-  "Kneeling cable pulldown": "2-0-1-1",
-  "Neutral-grip pull-up / lat pulldown": "2-0-1-1",
+  // Pulls — normal cadence
+  "Cable lat pulldown (wide)": "2-0-1-0",
+  "Kneeling cable pulldown": "2-0-1-0",
+  "Neutral-grip pull-up / lat pulldown": "2-0-1-0",
+  "Chest-supported DB row": "2-1-1-0",
+  "Neutral-grip cable row": "2-0-1-0",
+  "Single-arm DB row": "2-0-1-0",
 
-  // Rows
-  "Chest-supported DB row": "2-1-1-1",
-  "Neutral-grip cable row": "2-0-1-1",
-  "Single-arm DB row": "2-0-1-1",
+  // Stretch-position work — second digit earns its keep here
+  "Low-to-high cable fly": "2-1-1-0",
+  "High-to-low cable fly": "2-1-1-0",
+  "Cable fly (mid pulley)": "2-1-1-0",
+  "Kneeling ring fly": "2-2-1-0",
+  "Incline DB curl": "2-1-1-0",
+  "Overhead DB tricep extension": "2-1-1-0",
+  "Standing cable overhead tricep extension": "2-1-1-0",
+  "EZ-bar cable skull crusher": "2-1-1-0",
+  "Overhead cable tricep extension": "2-1-1-0",
+  "Romanian deadlift (DB)": "2-1-1-0",
+  "Romanian deadlift (barbell)": "2-1-1-0",
 
-  // Flys & posterior shoulder
-  "Low-to-high cable fly": "3-1-2-1",
-  "High-to-low cable fly": "3-1-2-1",
-  "Cable fly (mid pulley)": "3-1-2-1",
-  "Kneeling ring fly": "3-2-2-0",
+  // Peak-contraction holds retained — the squeeze IS the exercise
   "Cable face pull": "2-0-1-2",
   "Reverse cable fly": "2-0-1-2",
-
-  // Shoulders
-  "Cable lateral raise": "3-0-1-1",
-
-  // Curls
-  "Incline DB curl": "3-1-1-1",
-  "Spider curl": "3-0-1-2",
-  "Cable curl (straight bar)": "2-0-1-1",
-  "Cross-body cable curl": "2-0-1-1",
-
-  // Triceps
-  "Cable tricep pushdown (rope)": "3-0-1-1",
-  "Overhead DB tricep extension": "3-1-1-1",
-  "Standing cable overhead tricep extension": "3-1-1-1",
-  "EZ-bar cable skull crusher": "3-1-1-1",
-  "Overhead cable tricep extension": "3-1-1-1",
-
-  // Traps & calves
   "DB shrug (leaning)": "2-1-1-2",
-  "Standing calf raise": "3-1-1-1",
+  "DB shrug": "2-1-1-2",
+  "Hip thrust (barbell)": "2-0-1-2",
 
-  // Core
+  // Remaining
+  "Cable lateral raise": "2-0-1-0",
+  "Spider curl": "2-0-1-0",
+  "Cable curl (straight bar)": "2-0-1-0",
+  "Cross-body cable curl": "2-0-1-0",
+  "Cable tricep pushdown (rope)": "2-0-1-0",
+  "Zercher squat": "2-1-1-0",
+  "Trap bar deadlift": "2-0-1-0",
+  "Conventional deadlift": "2-0-1-0",
+  "Nordic curl negative (or lying hamstring curl)": "5-0-1-0",
+  "Bulgarian split squat (DB)": "2-0-1-0",
+  "Heel-elevated back squat": "2-1-1-0",
+  "Barbell sumo deadlift": "2-0-1-0",
+  "Spanish squat": "2-1-1-0",
+  "Standing calf raise": "2-1-1-0",
   "Pallof press (cable)": "2-2-1-0",
   "Dead bug": "3-0-3-0",
 
-  // Isometric holds — no tempo
+  // Isometric — no tempo
   "Dead hang": "Hold",
   "Back extension (Backstrom)": "Stage-based",
 };
@@ -404,26 +400,26 @@ function getTempoFor(exName) {
   return null;
 }
 const PHASES = [
-  { weeks:[1,2],  label:"Weeks 1–2 · Technical onboarding", color:"#0F6E56", rpe:"6–7",
-    desc:"Learn movement patterns at light load. RPE 6–7 — 3–4 reps left in the tank every set. Cat-cow warmup before every session. Zone 2: Thursday 40 min walk. Sunday 30 min walk.",
-    tags:["3 sets","15–20 reps","RPE 6–7","Light load","Zone 2 Thu + Sun"],
-    newMoves:["Zercher squat — empty bar pattern only","Barbell sumo deadlift — technique focus","Heel-elevated back squat — learn the upright position","Back extension Stage 1 (2 min isometric hold)","Dead hangs Mon + Fri (3×20s)","Calf raises both lower days","Shrugs Mon + Fri","Daily ankle mobility — fixing the squat limitation"] },
-  { weeks:[3,6],  label:"Weeks 3–6 · Hypertrophy block A", color:"#185FA5", rpe:"7–8",
-    desc:"Progressive overload begins. Top set (4–6 reps, RPE 8) added to primary compound each day before working sets. RDL returns Week 3. Zone 2: Thursday 40 min + Sunday 30–40 min.",
-    tags:["3–4 sets","8–12 reps","RPE 7–8","Top sets","Progressive overload"],
-    newMoves:["Top set added to Zercher, trap bar, hip thrust, split squat","RDL returns Week 3 (DB)","Barbell RDL replaces DB RDL (Week 5)","Back extension Stage 2 (single-leg holds, Week 3)","Heel-elevated back squat continues building load"] },
-  { weeks:[7,10], label:"Weeks 7–10 · Hypertrophy block B", color:"#854F0B", rpe:"8–9",
-    desc:"Intensity climbs. Supersets introduced. Conventional deadlift replaces trap bar. Heel-elevated back squat gets a heavy top set. VO2 max intervals replace Thursday walk from Week 7.",
-    tags:["4 sets","8–12 reps","RPE 8–9","Supersets","VO2 max Thu"],
-    newMoves:["Conventional deadlift from floor (replaces trap bar, Wed)","Heel-elevated back squat top set added (Sat)","Back extension Stage 3 — full range reps","VO2 max intervals Thursday: 4 min hard / 4 min easy × 4 rounds","Jefferson curl added to evening mobility (Week 8)"] },
-  { weeks:[11,11],label:"Week 11 · Deload", color:"#534AB7", rpe:"5",
-    desc:"50% volume, same weights, RPE 5. Full morning and evening mobility every day. Zone 2 only — no VO2 max this week. Tendons and joints catch up to muscles.",
-    tags:["2 sets","Same weight","RPE 5","Full mobility","Zone 2 only"],
+  { weeks:[1,2],  label:"Weeks 1\u20132 \u00b7 Recalibration", color:"#0F6E56", rpe:"2\u20133 RIR",
+    desc:"Re-establish honest working loads at normal cadence. The tempo holds are gone from the primary lifts \u2014 expect every weight to feel different. Do NOT chase failure. Log a true top-set number for incline DB press and flat DB press this block; that number decides whether the 55 lb dumbbell ceiling is real. Surplus starts now: +300 over maintenance, 0.4\u20130.5 lb/week.",
+    tags:["~80 sets/wk","2\u20133 RIR","Normal cadence","Surplus +300","Establish loads"],
+    newMoves:["Weighted dips move FIRST on Friday \u2014 dip belt from week one","Cable lateral raise now 3\u00d7 per week (Mon/Tue/Fri) \u2014 9 sets total","Peak-contraction holds removed from all primary presses and pulls","Incline DB press moved to first on Tuesday, done fresh","Ceiling test: top set of 8 at 2 RIR on incline DB and flat DB"] },
+  { weeks:[3,6],  label:"Weeks 3\u20136 \u00b7 Accumulation A", color:"#185FA5", rpe:"2 RIR",
+    desc:"Double progression on every lift. Add reps until all sets hit the top of the range, then add load and reset to the bottom. Dips add 2.5\u20135 lb per week, no faster. Zone 2 Thursday + Sunday continues.",
+    tags:["Double progression","2 RIR","Load climbs weekly","Dips +2.5\u20135 lb/wk"],
+    newMoves:["Barbell RDL replaces DB RDL (Week 5)","Back extension Stage 2 (Week 3)","Add load to lateral raises \u2014 last set to failure only"] },
+  { weeks:[7,10], label:"Weeks 7\u201310 \u00b7 Accumulation B", color:"#854F0B", rpe:"1\u20132 RIR",
+    desc:"Loads should be visibly higher than Week 2 on dips, incline press and pulldowns. If they are not, the problem is the surplus, not the program. Only the final set of an isolation movement goes to 0\u20131 RIR.",
+    tags:["1\u20132 RIR","Last iso set to failure","Check the log vs Wk 2"],
+    newMoves:["Back extension Stage 3 \u2014 full range reps","Optional: incline barbell press test if DB ceiling confirmed","Conventional deadlift may replace trap bar (Week 11)"] },
+  { weeks:[11,11],label:"Week 11 \u00b7 Deload", color:"#534AB7", rpe:"4\u20135 RIR",
+    desc:"Half the sets, same weights. Full mobility daily. Keep eating in the surplus \u2014 the deload is for joints and connective tissue, not for the diet.",
+    tags:["2 sets","Same weight","4\u20135 RIR","Surplus continues"],
     newMoves:[] },
-  { weeks:[12,12],label:"Week 12 · Test & reset", color:"#A32D2D", rpe:"varies",
-    desc:"Repeat Week 1 conditions to compare. Test your top sets on main lifts. Log new maxes. Plan Cycle 2 — conventional deadlift and back squat become established primary lifts.",
-    tags:["Reassess","New maxes","Cycle 2 planning"],
-    newMoves:["Back extension Stage 4–5 with load in Cycle 2","True sprint intervals introduced in Cycle 2 (hamstrings prepared by now)","Jefferson curl becomes regular mobility movement"] },
+  { weeks:[12,12],label:"Week 12 \u00b7 Test & reset", color:"#A32D2D", rpe:"varies",
+    desc:"Compare directly against your Week 2 log. The two questions that matter: are the dips loaded with a plate, and have the lateral raises gone up? Progress photos at the same time of day, same lighting, fasted.",
+    tags:["Reassess","Compare to Wk 2","Photos + measurements"],
+    newMoves:["Measure upper arm and shoulder width \u2014 the metrics that track your actual goal","Decide Cycle 3: continue surplus or transition to a controlled cut"] },
 ];
 
 function getPhase(week) {
@@ -483,54 +479,44 @@ function getExercisesForWeek(dayIdx, week) {
 }
 
 const DAYS = [
-  { name:"Monday — Upper A", emoji:"💪", bg:"#E6F1FB", sub:"Pull focus + arms + traps", exercises:[
-    {name:"Chest-supported DB row",sets:"4×10–12",rest:90,rpe:"7–8",cues:["Bench at 30–45° incline, lie face-down with chest pressed against the pad","Neutral grip — palms facing each other, DBs vertical","Elbows at 45–60° from torso — not wide, not tucked","Full dead-hang stretch at the bottom of every rep","Drive your elbows up and back toward the area between your shoulder blades","Don't try to drive elbows 'around' your torso — just squeeze shoulder blades together as hard as you can, elbows will end up past your torso line naturally","Hold the peak contraction 1 second — feel a hard squeeze in the middle of your upper back near your spine","2 sec lower (controlled stretch), no momentum back up — quality over weight"]},
-    {name:"Kneeling cable pulldown",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Kneel facing the cable machine, sit back on heels for stability — no leg pad needed","Overhand grip slightly wider than shoulder-width, or neutral grip if shoulder sensitivity","Full stretch at the top — let shoulder blades rise fully before each rep","Lean back slightly 10–15°, drive elbows down toward your pant pockets (the ones on your butt)","Bar or rope to upper chest, squeeze the sides of your back hard for 1s at the bottom","Kneeling gives enough ground resistance to load properly without being pulled up"]},
-    {name:"Cable face pull",sets:"3×15",rest:60,rpe:"6–7",cues:["Pulley at forehead height, rope attachment","Drive elbows back and wide — flared, not tucked","Pull rope toward forehead, split rope at the end","External rotate fully — knuckles pointing to ceiling"]},
-    {name:"Neutral-grip cable row",sets:"3×12",rest:90,rpe:"7–8",cues:["Neutral grip (palms facing each other), chest tall throughout","Before each pull: pull shoulders DOWN away from your ears — don't let them shrug up during the row","Row to sternum, elbows tracking close along your sides","Drive elbows back PAST your ribs — toward your pant pockets behind you","Full squeeze of the sides of your back at the end","V-handle attachment is best — your current dual-handle setup limits elbow travel"]},
-    {name:"DB shrug (leaning)",sets:"3×15",rest:60,rpe:"6–7",cues:["Set an incline bench at 60-65°","Stand FACING the bench, lean your chest against the pad — DBs hang straight toward the floor","The angle changes the line of pull — biases mid/lower part of your trap muscle instead of upper","Initiate by squeezing your shoulder blades together and slightly DOWN — think 'pinch and pull down', not 'shrug up'","DBs travel up and slightly backward relative to your body angle","Hold the peak contraction 2 seconds with hard scapular squeeze","Slow controlled return — feel the stretch in the mid back at the bottom","Targets the part of the trap muscle that pulls your shoulders back and down — protective work for desk posture"]},
-    {name:"Incline DB curl",sets:"4×12–15",rest:60,rpe:"7–8",cues:["Bench at 45–60°, upper arm hangs behind torso","Full dead-hang stretch at bottom — that's the point","Supinate wrist as you curl, hard squeeze at top","Do NOT swing — if you are, the weight is too heavy"]},
-    {name:"Spider curl",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Face-down on incline bench, upper arms perpendicular to floor","Curl toward face — short head peak contraction","No momentum possible — go lighter than you think"]},
-    {name:"Dead hang",sets:"3×20–30s",rest:60,rpe:"6",cues:["Placed at the END of the session — grip is fresh-enough for the hold but won't compromise curl work earlier","Hang from pull-up bar with full grip, arms straight","Let shoulders fully decompress — feel the spine lengthen","Breathe slowly and relax into it — don't tense","Build toward 60s holds over 12 weeks","Always step down — never let go and drop","Attia: dead hangs are one of the highest ROI longevity investments — grip strength + spinal decompression","PAUSED until PT clears the recompression symptom — replace with hollow body hang (legs at hip height) if you want to keep something in this slot"]},
+  { name:"Monday \u2014 Upper A", emoji:"\ud83d\udcaa", bg:"#E6F1FB", sub:"Pull + side/rear delts + biceps", exercises:[
+    {name:"Chest-supported DB row",sets:"4\u00d78\u201312",rest:120,rpe:"2 RIR",cues:["Bench at 30\u201345\u00b0 incline, chest pressed against the pad","Neutral grip, elbows 45\u201360\u00b0 from torso","Full dead-hang stretch at the bottom, 1s pause there","Drive elbows up and back \u2014 squeeze shoulder blades together","No peak hold anymore \u2014 touch the top and control back down","Stop at 2 reps in reserve. If the last rep was a grind, go lighter next set"]},
+    {name:"Kneeling cable pulldown",sets:"3\u00d78\u201312",rest:120,rpe:"2 RIR",cues:["Kneel facing the machine, sit back on heels","Let shoulder blades rise fully at the top \u2014 full stretch","Drive elbows down toward your back pockets","Normal cadence, no bottom hold \u2014 the load needs to climb","This and the row are your two width builders. Track the weight"]},
+    {name:"Cable lateral raise",sets:"3\u00d712\u201315",rest:75,rpe:"2 RIR / last set 0\u20131",cues:["ADDED VOLUME \u2014 now 3\u00d7 per week. This is the highest-priority change in the program","Cable at ankle height, stand sideways","Lead with the elbow, raise to shoulder height only","2s down, no hold at the top","Final set of the week (Friday) goes to failure","Side delts are what make you look broad. Chest cannot do this job"]},
+    {name:"Cable face pull",sets:"2\u00d712\u201315",rest:60,rpe:"3 RIR",cues:["Pulley at forehead height, rope attachment","Elbows back and wide, external rotate fully at the finish","2s squeeze retained \u2014 the contraction is the point here","Reduced to 2 sets; this is shoulder-health work, not growth work"]},
+    {name:"Incline DB curl",sets:"3\u00d78\u201312",rest:75,rpe:"2 RIR",cues:["Bench 45\u201360\u00b0, upper arm hangs behind torso","Full dead-hang stretch at the bottom \u2014 1s pause","Supinate as you curl, no hold at the top","Heavier than before: 8\u201312 not 12\u201315. Arms need load, not just reps"]},
+    {name:"Spider curl",sets:"3\u00d710\u201315",rest:60,rpe:"2 RIR / last set 0\u20131",cues:["Face-down on incline bench, upper arms perpendicular to floor","Curl toward your face","No momentum possible \u2014 go lighter than you think","All bicep volume now sits on Monday. Friday has none"]},
   ]},
-  { name:"Tuesday — Push", emoji:"🔥", bg:"#FAEEDA", sub:"Chest, shoulders, triceps", exercises:[
-    {name:"Incline DB press",sets:"4×8–10",rest:120,rpe:"7–8",cues:["Bench at 30–45° — higher shifts load to shoulders","Elbows at 70° from torso, not 90°","Full chest stretch at bottom, brief pause","Drive up and slightly together — gentle arc"]},
-    {name:"Low-to-high cable fly",sets:"3×12–15",rest:75,rpe:"7–8",cues:["Cable at ankle/floor level","Slight forward lean — 10–15° from vertical at the hips (NOT bent over, just a small tilt forward)","Standing upright reduces upper chest activation; the slight lean aligns the cable pull with your upper chest fiber direction","Sweep upward and inward — like scooping water up toward your face","Hands meet at chin or upper-chest level (not at your sternum), same elbow bend throughout","Supinate at the top — palms turning up, thumbs pointing out to opposite walls","1s pause with hard squeeze at top"]},
-    {name:"High-to-low cable fly",sets:"3×12–15",rest:75,rpe:"7–8",cues:["Cable at HIGHEST pulley setting","Stand (don't sit — line of pull degrades sitting), slight forward lean 10–15° at the hips","Staggered stance for stability","Start with arms extended out to your sides at shoulder height or just above","Sweep DOWN and inward in a wide arc — hands meet at hip or upper thigh level","Pronate at the bottom — palms turning back toward your butt, thumbs pointing inward and slightly behind","Lock the soft elbow bend (10–15°) — don't let elbows extend during the rep","PEAK SQUEEZE IS AT THE BOTTOM — hold a hard 1-second squeeze with hands meeting at hip level. This is where the lower chest is most contracted. Don't skip this hold.","Picture squeezing water out of a sponge held between your hands at your hips","Feel the lower chest cramping along where it meets your ribcage — that cramping sensation IS the peak contraction","Controlled return through full stretch at shoulder height","Subbed in for kneeling ring fly while shoulder recovers — ring fly's deep stretch position was bothering shoulder"]},
-    {name:"Seated DB shoulder press",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Neutral or semi-pronated grip","Drive straight overhead, DBs finish close together","Keep elbows at 70° — not flared to 90°"]},
-    {name:"Cable lateral raise",sets:"3×15–20",rest:60,rpe:"6–7",cues:["Cable at ankle height, stand sideways","Lead with elbow — raise to shoulder height only","3s slow negative — where cables beat dumbbells"]},
-    {name:"Cable tricep pushdown (rope)",sets:"4×12–15",rest:60,rpe:"7–8",cues:["Elbows pinned to sides — they must not move","Drive down and flare rope apart at bottom","Full lockout, squeeze 1s — lateral head activation"]},
-    {name:"EZ-bar cable skull crusher",sets:"3×10–12",rest:75,rpe:"7–8",cues:["Pulley at lowest setting, EZ-bar attachment","Position a flat bench so your head is 6–12 inches from the cable stack","Lie on your back, head at the end of the bench closest to the cable","Take the EZ-bar with the cable coming over your head from behind","Starting position: arms extended straight up so the bar is over your forehead — cable should be taut, no slack","Keep upper arms perpendicular to the floor — they don't move during the rep","Bend ONLY at the elbows — bar travels back over your forehead, past your head, toward the bench behind you","BOTTOM: bar near the bench behind your head — feel deep stretch in the back of your upper arms","Extend at the elbows back to starting position — but stop JUST SHORT of fully locked out to keep constant tension","Subbed in for overhead cable extension — the cable EZ-bar setup gives equivalent long-head stretched-position loading without the shoulder strain","Start lighter than you think — constant cable tension means you can't muscle through stuck points","Use the EZ-bar specifically (not straight bar) — angled grips are much easier on wrists and inner elbows"]},
+  { name:"Tuesday \u2014 Push", emoji:"\ud83d\udd25", bg:"#FAEEDA", sub:"Chest + shoulders + triceps", exercises:[
+    {name:"Incline DB press",sets:"4\u00d76\u201310",rest:150,rpe:"2 RIR",cues:["MOVED TO FIRST \u2014 done fresh, this is your upper chest builder","Bench 30\u201345\u00b0, elbows 70\u00b0 from torso","Tempo now 2-0-1-0. The 3s eccentric and double holds are gone","CEILING TEST (Weeks 1\u20132): work to a top set of 8 at 2 RIR and record it. If you hit the 55s for 8+, the equipment ceiling is real. If you land at 40\u201345, the tempo was the problem","Upper chest is the flat spot in your front photo \u2014 this lift addresses it, dips do not","WEEK 3+: move to 2-1-1-0 and add a 1s pause at the bottom. It runs pauseless through Week 2 only so the ceiling-test number is clean"]},
+    {name:"Low-to-high cable fly",sets:"3\u00d710\u201315",rest:75,rpe:"2 RIR",cues:["Cable at floor level, 10\u201315\u00b0 forward lean at the hips","Sweep up and in, hands meet at chin height","3s down with a 1s stretch at the bottom \u2014 stretch hold retained","Peak squeeze hold removed \u2014 touch and return","Second upper-chest movement. Cable stack loads indefinitely, unlike your DBs"]},
+    {name:"Seated DB shoulder press",sets:"3\u00d78\u201312",rest:120,rpe:"2 RIR",cues:["Neutral or semi-pronated grip","Drive straight overhead, elbows at 70\u00b0","Normal cadence \u2014 load should climb week to week"]},
+    {name:"Cable lateral raise",sets:"3\u00d712\u201315",rest:75,rpe:"2 RIR",cues:["Second of three weekly sessions","Lead with the elbow, shoulder height only","Add load when you hit 15 on all three sets"]},
+    {name:"EZ-bar cable skull crusher",sets:"3\u00d78\u201312",rest:90,rpe:"2 RIR",cues:["Flat bench, head 6\u201312 inches from the stack, lowest pulley","Upper arms perpendicular to the floor, they do not move","Deep stretch at the bottom with a 1s hold \u2014 this one keeps the stretch pause","Stop just short of lockout for constant tension"]},
   ]},
-  { name:"Wednesday — Lower A", emoji:"🦵", bg:"#E1F5EE", sub:"Glute, hamstring & quad", exercises:[
-    {name:"Hip thrust (barbell)",sets:"4×10–12",rest:90,rpe:"7–8",cues:["Shoulder blades on bench edge, bar in hip crease — pad it","Feet flat, shoulder-width, shins vertical at top","Drive through both heels — hips to ceiling not lower back","Squeeze glutes hard, hold 1–2s, pelvis slightly tucked","Lower back must NOT hyperextend at top"]},
-    {name:"Zercher squat",sets:"3×8–10",rest:120,rpe:"7–8",cues:["Bar in crook of elbows — use cambered bar for comfort","Shoulder-width stance, toes out 15–30°","Sit straight down, elbows drive between knees at bottom","Chest stays tall — bar position punishes forward lean","Weeks 1–2: empty or lightly loaded bar only"]},
-    {name:"Trap bar deadlift",sets:"3×8–10",rest:120,rpe:"7–8",cues:["Stand centered, feet hip-width, toes slightly out","High handles first until form is solid","Hinge from hips first then bend knees — not a squat","Drive through floor, back flat throughout","Week 7+: this is replaced by conventional deadlift from floor"]},
-    {name:"Romanian deadlift (DB)",sets:"3×10–12",rest:90,rpe:"7–8",cues:["DBs in front of thighs, keep them close to legs","Soft knee — fixed angle throughout","Push hips back until strong hamstring stretch","Drive hips forward, squeeze glutes at top","Week 5+: barbell replaces DBs for greater overload"]},
-    {name:"Back extension (Backstrom)",sets:"Per stage",rest:90,rpe:"varies",cues:["Stage 1 (Wks 1–2): hold horizontal 2 min — zero movement","Stage 2 (Wks 3–6): one leg unhooked, hold 60s each side","Stage 3 (Wk 7+): full range reps, 3s down 2s up, build to 30","Stage 3: slight forward dip at bottom is intentional","Drop back one stage immediately if pain increases"]},
-    {name:"Standing calf raise",sets:"3×15–20",rest:45,rpe:"6–7",cues:["Both feet on floor or edge of step for full range","Rise onto toes as high as possible — full plantar flexion","3s slow negative — eccentric is where growth happens","Pause at full stretch at the bottom before next rep","Functional value: calf strength reduces ankle injury risk and improves walking economy long-term"]},
+  { name:"Wednesday \u2014 Lower A", emoji:"\ud83e\uddb5", bg:"#E1F5EE", sub:"Glute, hamstring & quad", exercises:[
+    {name:"Hip thrust (barbell)",sets:"3\u00d78\u201312",rest:120,rpe:"2 RIR",cues:["Shoulder blades on bench edge, bar padded in hip crease","Drive through both heels, shins vertical at the top","1\u20132s glute squeeze retained \u2014 the contraction is the point here","Lower back must NOT hyperextend at the top"]},
+    {name:"Trap bar deadlift",sets:"3\u00d75\u20138",rest:150,rpe:"2 RIR",cues:["Moved earlier in the session so it gets real load","Hinge from the hips first, then bend the knees","Back flat throughout, drive through the floor","Lower rep range now \u2014 this is your heavy pull"]},
+    {name:"Zercher squat",sets:"3\u00d76\u201310",rest:150,rpe:"2 RIR",cues:["Bar in the crook of the elbows, cambered bar for comfort","Sit straight down, elbows drive between the knees","Chest tall \u2014 the bar position punishes forward lean","3s down with a 1s pause at the bottom"]},
+    {name:"Romanian deadlift (DB)",sets:"3\u00d78\u201312",rest:120,rpe:"2 RIR",cues:["Soft knee at a fixed angle throughout","Push hips back until you feel a strong hamstring stretch","1s hold in the stretched position \u2014 that is the whole exercise","Squeeze glutes to return, no hold at the top"]},
+    {name:"Back extension (Backstrom)",sets:"Per stage",rest:90,rpe:"varies",cues:["Unchanged \u2014 rehab progression runs on its own timeline","Stage 1: hold horizontal 2 min. Stage 2: single-leg holds 60s each","Stage 3: full range reps, 3s down 2s up","Drop back one stage immediately if pain increases"]},
+    {name:"Standing calf raise",sets:"2\u00d712\u201320",rest:60,rpe:"2 RIR",cues:["Reduced to 2 sets \u2014 4 per week total across both lower days","Full range, 3s negative, pause at the bottom stretch"]},
   ]},
-  { name:"Friday — Upper B", emoji:"⚡", bg:"#EEEDFE", sub:"Pull + chest + arms + traps", exercises:[
-    {name:"Neutral-grip pull-up / lat pulldown",sets:"4×8–10",rest:90,rpe:"7–8",cues:["Full dead hang at bottom — shoulder blades rise fully","Drive elbows down toward your pant pockets (the ones on your hips)","Neutral grip — easiest on shoulder joint","Feel the sides of your back doing the work, not your arms"]},
-    {name:"Single-arm DB row",sets:"3×10–12",rest:90,rpe:"7–8",cues:["TARGET: mid back near the spine, between your shoulder blades — NOT the sides of your back","Same-side knee and hand on bench, back flat and neutral","Elbow flares out to 60–70° from torso — halfway between tucked and fully wide","Think: elbow pointing to the corner of the room behind you, not toward your hip","Lead with elbow going toward the ceiling — the DB is just a handle","At the top: squeeze your shoulder blade toward your spine — that retraction IS the movement","Feel it between your shoulder blades, not down the side of your torso","90° is too wide — stops there and shoulder impingement risk climbs","Small natural torso rotation at top is fine, exaggerating it is not"]},
-    {name:"Weighted dips (chest-focused)",sets:"3–4×6–10",rest:120,rpe:"7–8",cues:["Bodyweight only for first 2–3 weeks while you establish the movement pattern","Lean torso FORWARD 30–45° throughout — this shifts emphasis from triceps to chest","Elbows track outward at 30–45° from your sides — not pinned tight (tricep emphasis), not flared to 90° (shoulder stress)","Lower with control until upper arms are parallel to the floor or slightly below — deep stretched position is the goal","Don't chase depth past comfortable control — the stretch matters more than how low you go","BOTTOM: feel the chest fully lengthened across its width and lower fibers","Press up by driving through chest and triceps — slight crunch forward at the top maintains chest tension","Don't fully lock out elbows if you want constant tension — near-lockout is fine","Once 3×10 at bodyweight feels solid, add weight via dip belt with a plate or DB held between feet","Add weight slowly: 2.5–5 lb per week, no faster","Stop the descent IMMEDIATELY if you feel any pinching at the front of the shoulder","Stretched-position loading on a compound chest movement — high-value exercise"]},
-    {name:"Flat DB press",sets:"3×10–12",rest:90,rpe:"7–8",cues:["Now secondary to dips — slightly lower weight than before is appropriate since you're already fatigued","DBs allow free wrist rotation throughout — this is what removes the shoulder impingement the barbell causes","Elbows at 70° from your torso — not 90° (shoulder stress) and not tucked (loses chest activation)","Wrists stacked directly over elbows throughout — if wrists are bending back, grip is wrong","Lower until deep chest stretch — DBs can go slightly below chest level unlike a bar. Stop when you feel stretch in outer pec, not shoulder pinching","BOTTOM: pause 1 full second — no bounce, no stretch reflex. Forces genuine muscle control.","MIND-MUSCLE: aim for mid-to-outer pec (the thicker region toward your armpit) — NOT inner chest. Inner chest is what cable flies are for.","On the press: imagine pushing your hands toward each other slightly without moving them — activates more mid chest fibers","Drive up and very slightly together — a gentle arc, not straight up"]},
-    {name:"Cable fly (mid pulley)",sets:"3×12–15",rest:75,rpe:"7–8",cues:["Mid pulley — chest height with arms out","Sweep inward, slightly supinate wrists at finish","1s pause with hands together"]},
-    {name:"DB shrug (leaning)",sets:"3×15",rest:60,rpe:"6–7",cues:["Bench at 60-65°, chest against pad","Squeeze shoulder blades together and slightly DOWN — pinch and pull down","Hold 2s at peak contraction, slow controlled return","Targets mid/lower part of trap muscle for posture"]},
-    {name:"Cable curl (straight bar)",sets:"3×12–15",rest:60,rpe:"7–8",cues:["Shoulder-width underhand, elbows fixed at sides","1s squeeze at peak contraction","W-bar / EZ-bar attachment is equivalent and easier on wrists"]},
-    {name:"Cross-body cable curl",sets:"3×12 each",rest:60,rpe:"7–8",cues:["Single arm cable at low pulley, stand sideways","Curl across body toward opposite shoulder","Cross-body targets long head for outer sweep","Supinate palm upward at top"]},
-    {name:"EZ-bar cable skull crusher",sets:"3×10–12",rest:75,rpe:"7–8",cues:["Same setup as Tuesday — flat bench positioned with head 6–12 inches from cable stack, EZ-bar on lowest pulley","Arms extended straight up at start, bar over forehead, cable taut","Upper arms perpendicular to floor — they stay there throughout","Bend only at elbows, bar travels back and down behind your head","Deep stretch at the bottom, controlled extension back up to just short of full lockout","Constant cable tension throughout the range — no stuck points, no resistance drop in the stretch"]},
-    {name:"Reverse cable fly",sets:"3×15",rest:60,rpe:"6–7",cues:["Cable crossover, cross cables, grab opposite handles","Fly backward — squeeze rear delts at end range","Counters desk posture — pulls shoulders back"]},
-    {name:"Dead hang",sets:"3×20–30s",rest:60,rpe:"6",cues:["Placed at the END of the session — grip is fresh-enough for the hold but won't compromise curl work earlier","Full hang, arms straight, shoulders fully decompressed","Breathe slowly and relax — don't actively pull","Build toward 60s holds over 12 weeks","Always step down — never let go and drop","Spinal decompression + grip strength — high longevity value","PAUSED until PT clears the recompression symptom — replace with hollow body hang (legs at hip height) if you want to keep something in this slot"]},
+  { name:"Friday \u2014 Upper B", emoji:"\u26a1", bg:"#EEEDFE", sub:"Chest emphasis + pull + triceps", exercises:[
+    {name:"Weighted dips (chest-focused)",sets:"4\u00d76\u201310",rest:150,rpe:"2 RIR",cues:["MOVED TO FIRST and WEIGHTED FROM WEEK ONE \u2014 the single biggest change on this day","This is now your primary chest lift. It is the only chest movement you own with no load ceiling","Dip belt with a plate, or a DB between the feet. Start at 10 lb even if it drops you to 6 reps","Add 2.5\u20135 lb per week, no faster","Lean torso forward 30\u201345\u00b0, elbows out 30\u201345\u00b0","Lower until upper arms are parallel, 1s stretch at the bottom","Stop immediately on any pinching at the front of the shoulder","Previously done third at bodyweight, 6/6/5/4. That is why it never progressed"]},
+    {name:"Neutral-grip pull-up / lat pulldown",sets:"4\u00d76\u201310",rest:120,rpe:"2 RIR",cues:["Full dead hang at the bottom, shoulder blades rise fully","Drive elbows down toward your hip pockets","Neutral grip \u2014 easiest on the shoulder joint","Add weight via belt once you clear 10 clean reps"]},
+    {name:"Flat DB press",sets:"3\u00d78\u201312",rest:120,rpe:"2 RIR",cues:["You have reported this feeling fine \u2014 the free wrist rotation is why it works where the barbell did not","Elbows 70\u00b0, wrists stacked over elbows","1s pause at the bottom stretch, no bounce \u2014 the stretch is where chest growth concentrates","Still drive the DBs up AND slightly together \u2014 that adduction is a real pec action during the rep","What is gone is the STATIC squeeze at lockout: arms straight, DBs over your shoulders, the pec has almost no load there. Squeezing at the top is voluntary tension, not loaded tension","CEILING TEST (Weeks 1\u20132): record a true top set of 8 at 2 RIR"]},
+    {name:"Single-arm DB row",sets:"3\u00d78\u201312",rest:90,rpe:"2 RIR",cues:["Mid back near the spine, NOT the sides of your back","Elbow flares to 60\u201370\u00b0 \u2014 not tucked, not 90\u00b0","Lead with the elbow toward the ceiling","Squeeze the shoulder blade toward the spine at the top"]},
+    {name:"Cable lateral raise",sets:"3\u00d712\u201315",rest:75,rpe:"last set to failure",cues:["Third and final session of the week \u2014 9 sets total","This is the set that goes to 0\u20131 RIR","If you only protect one change in this whole rewrite, protect this one"]},
+    {name:"Cable tricep pushdown (rope)",sets:"3\u00d710\u201315",rest:60,rpe:"2 RIR",cues:["Elbows pinned to your sides","Drive down and flare the rope apart at the bottom","Full lockout, no hold \u2014 normal cadence","Triceps also get heavy indirect work from the dips above"]},
   ]},
-  { name:"Saturday — Lower B", emoji:"🏋️", bg:"#FAECE7", sub:"Quad, core & glute isolation", exercises:[
-    {name:"Bulgarian split squat (DB)",sets:"4×10 each",rest:90,rpe:"7–8",cues:["Rear foot elevated, front foot far enough for vertical shin","Lower straight down — not forward","Drive through front heel — quad and glute do the work","First few sessions feel unstable — lighter weight until solid"]},
-    {name:"Heel-elevated back squat",sets:"3×8–12",rest:120,rpe:"7–8",cues:["Heels on a small ramp or 1–2 inch of plates — this compensates for ankle mobility limitation","Bar on upper traps, brace hard before unracking","Heel elevation lets you stay UPRIGHT — this is the whole point, it keeps load off your lower back","Sit straight down between your heels, chest tall, knees track forward over toes","If your back rounds or pitches forward, the elevation isn't high enough — add more","Loadable with the full barbell so your legs are the limit, not your grip","If this still bothers your back, stop and switch to single-leg work only — tell no one you need to push through it"]},
-    {name:"Barbell sumo deadlift",sets:"3×10–12",rest:90,rpe:"7–8",cues:["STANCE TEST (next 2 sessions): narrow your stance 3–4 inches from before, reduce weight ~25%, and assess the right-knee pressure honestly","If pressure resolves with the narrower stance → rebuild weight over 2–3 weeks and sumo stays","If pressure persists after 2 honest attempts → replace this slot with hip thrust and tell Claude","Stance: feet moderately outside shoulder width (NOT maximal wide), toes out 30–40°","Knees track OUT over toes the entire pull — do not let them drift inward on the way up","Bar over mid-foot, hands inside knees","Hinge and drop hips to grip bar — chest up, back flat","Drive floor away, squeeze your inner thighs and butt at the top","Control the descent (2–3s) — don't emphasize a slow eccentric, the work is on the way UP","Intentionally different pattern from Wednesday — biases inner thighs and the outside of your butt"]},
-    {name:"Back extension (Backstrom)",sets:"Per stage",rest:90,rpe:"varies",cues:["Same stage as Wednesday — progress both together","Stage 3: 3s down 2s up, slight dip at bottom intentional","Never push through sharp or radiating pain"]},
-    {name:"Pallof press (cable)",sets:"3×12 each",rest:60,rpe:"6–7",cues:["Cable at chest height, stand sideways to machine","Press straight out, resist the rotation — hold 2s","Zero torso rotation is the entire exercise"]},
-    {name:"Dead bug",sets:"3×10 each",rest:60,rpe:"6–7",cues:["Lower back pressed flat to floor throughout","Opposite arm and leg extend — 3s out, 3s back","Exhale as you extend — activates deep core stabilizers","If back lifts, reduce range of motion"]},
-    {name:"Standing calf raise",sets:"3×15–20",rest:45,rpe:"6–7",cues:["Full range — rise as high as possible, lower to full stretch","3s slow negative — eccentric loading drives adaptation","Pause at full stretch before next rep","Add load when 20 reps feels easy"]},
+  { name:"Saturday \u2014 Lower B", emoji:"\ud83c\udfcb\ufe0f", bg:"#FAECE7", sub:"Quad, core & glute", exercises:[
+    {name:"Bulgarian split squat (DB)",sets:"3\u00d78\u201312 each",rest:120,rpe:"2 RIR",cues:["Rear foot elevated, front foot far enough for a vertical shin","Lower straight down, not forward","Drive through the front heel","Reduced from 4 sets to 3","No bottom pause \u2014 on a single-leg movement the limiter is balance, not the quad. A pause here taxes your stabilizers, not the muscle you are trying to grow","Controlled 2s descent still applies. Touch the bottom and drive"]},
+    {name:"Heel-elevated back squat",sets:"3\u00d76\u201310",rest:150,rpe:"2 RIR",cues:["Heels on a ramp or 1\u20132 inches of plates","The elevation keeps you upright and off your lower back","If your back rounds, add more elevation","If it still bothers your back, drop it and run single-leg work only"]},
+    {name:"Barbell sumo deadlift",sets:"3\u00d78\u201312",rest:120,rpe:"2 RIR",cues:["STANCE TEST still open: narrower stance, assess the right-knee pressure honestly","If pressure persists after 2 honest attempts, replace this with hip thrust","Knees track OUT over the toes the entire pull","Control the descent 2\u20133s, the work is on the way up"]},
+    {name:"Back extension (Backstrom)",sets:"Per stage",rest:90,rpe:"varies",cues:["Same stage as Wednesday \u2014 progress both together","Never push through sharp or radiating pain"]},
+    {name:"Pallof press (cable)",sets:"2\u00d710\u201312 each",rest:60,rpe:"3 RIR",cues:["Cable at chest height, stand sideways","Press straight out, resist rotation, hold 2s","Zero torso rotation is the entire exercise","Dead bug removed \u2014 the Backstrom work covers the same ground"]},
+    {name:"Standing calf raise",sets:"2\u00d712\u201320",rest:60,rpe:"2 RIR",cues:["Full range, 3s negative, pause at the bottom stretch","Add load when 20 reps feels easy"]},
   ]},
 ];
 
